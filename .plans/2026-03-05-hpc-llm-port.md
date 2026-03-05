@@ -1,6 +1,6 @@
 ---
 Title: HPC LLM deployment substrate port
-Status: Draft
+Status: Done
 Owner: Codex
 Reviewers:
   - TBD
@@ -78,12 +78,12 @@ flowchart TD
 
 ## Implementation Plan
 
-- [ ] Milestone 0: add this plan and create a dedicated worktree/branch.
-- [ ] Milestone 1: add LLM settings parsing, provider interfaces, adapters, and
+- [x] Milestone 0: add this plan and create a dedicated worktree/branch.
+- [x] Milestone 1: add LLM settings parsing, provider interfaces, adapters, and
       health helpers.
-- [ ] Milestone 2: add CLI commands and model asset helpers.
-- [ ] Milestone 3: add local/HPC deployment wrappers and deployment docs.
-- [ ] Milestone 4: add a local browser chat window for smoke testing.
+- [x] Milestone 2: add CLI commands and model asset helpers.
+- [x] Milestone 3: add local/HPC deployment wrappers and deployment docs.
+- [x] Milestone 4: add a local browser chat window for smoke testing.
 
 ## Data Model & Migrations
 
@@ -143,3 +143,5 @@ leaving `deid-local doctor` intact. Optional extras can then be removed from
   `vllm`.
 - 2026-03-05: Set `./models/llm/Phi-3-mini-4k-instruct-q4.gguf` as the default
   smoke-test model path.
+- 2026-03-05: Completed implementation in `codex/feat-hpc-llm-port` using the
+  dedicated `../deid-local-hpc-llm-port` worktree.

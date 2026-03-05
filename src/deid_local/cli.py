@@ -8,6 +8,7 @@ import sys
 from collections.abc import Sequence
 
 from deid_local.adapters.llm import LLMRequest, build_provider
+from deid_local.core.chat_service import create_chat_app
 from deid_local.core.health import probe_provider_health
 from deid_local.core.llm_settings import (
     DEFAULT_TEST_MODEL_PATH,
@@ -66,6 +67,24 @@ def _run_llm_infer(args: argparse.Namespace) -> int:
         print(str(exc), file=sys.stderr)
         return 1
     print(response.text)
+    return 0
+
+
+def _run_llm_chat(args: argparse.Namespace) -> int:
+    try:
+        settings = _load_llm_settings(args)
+        provider = build_provider(settings)
+        app = create_chat_app(
+            provider,
+            system_prompt=args.system,
+            max_tokens=args.max_tokens,
+            temperature=args.temperature,
+        )
+    except (RuntimeError, ValueError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    print(f"Starting chat server at http://{args.host}:{args.port}")
+    app.run(host=args.host, port=args.port, debug=False)
     return 0
 
 
@@ -154,6 +173,28 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional system prompt to prepend to the request.",
     )
     llm_infer_parser.set_defaults(handler=_run_llm_infer)
+
+    llm_chat_parser = llm_subparsers.add_parser(
+        "chat",
+        parents=[llm_common],
+        help="Start a local browser chat window for smoke testing.",
+    )
+    llm_chat_parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Host interface for the local chat server.",
+    )
+    llm_chat_parser.add_argument(
+        "--port",
+        type=int,
+        default=8088,
+        help="Port for the local chat server.",
+    )
+    llm_chat_parser.add_argument(
+        "--system",
+        help="Optional system prompt to prepend to each chat request.",
+    )
+    llm_chat_parser.set_defaults(handler=_run_llm_chat)
 
     model_parser = subparsers.add_parser("model", help="Fetch or verify local model assets.")
     model_parser.set_defaults(handler=_make_help_handler(model_parser))

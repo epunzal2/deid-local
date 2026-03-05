@@ -28,6 +28,9 @@ llama_cpp = [
 models = [
   "huggingface_hub>=0.23.0",
 ]
+chat = [
+  "flask>=3.0.0",
+]
 
 [project.scripts]
 deid-local = "deid_local.cli:main"

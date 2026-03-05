@@ -22,6 +22,14 @@ uv run deid-local llm health --provider llama_cpp
 uv run deid-local llm infer --provider llama_cpp --prompt "Reply with pong."
 ```
 
+### Local chat window
+
+```bash
+scripts/deployment/macos/run_chat_window.sh
+```
+
+By default the chat server binds to `http://127.0.0.1:8088`.
+
 ## Remote HTTP Providers
 
 `deid-local` supports a generic `openai_http` client and a `vllm` preset.

@@ -21,4 +21,5 @@ Suggested next steps:
   uv run deid-local model fetch
   uv run deid-local llm health --provider llama_cpp
   uv run deid-local llm infer --provider llama_cpp --prompt "Reply with pong."
+  scripts/deployment/macos/run_chat_window.sh
 EOF

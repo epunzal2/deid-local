@@ -102,6 +102,7 @@ scripts/deployment/macos/setup_llama_cpp.sh
 uv run deid-local model fetch
 uv run deid-local llm health --provider llama_cpp
 uv run deid-local llm infer --provider llama_cpp --prompt "Reply with pong."
+scripts/deployment/macos/run_chat_window.sh
 ```
 
 ### Remote `vllm`
@@ -162,5 +163,4 @@ tests/                Unit and integration tests
 
 ## Next steps
 
-- Add the local browser chat window for smoke testing.
 - Expand provider coverage only when a concrete runtime needs it.
