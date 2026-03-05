@@ -25,6 +25,9 @@ dev = [
 llama_cpp = [
   "llama-cpp-python>=0.2.90",
 ]
+models = [
+  "huggingface_hub>=0.23.0",
+]
 
 [project.scripts]
 deid-local = "deid_local.cli:main"
