@@ -1,0 +1,46 @@
+# HPC GPU environment for Linux x86_64 with NVIDIA GPUs.
+#
+# Assumptions:
+# - RHEL 9 or another modern Linux distro with a compatible NVIDIA driver already
+#   installed via the cluster environment.
+# - Python packages provide the user-space CUDA libraries; this file does not install
+#   the system driver or CUDA toolkit modules.
+# - The PyTorch stack should come from the CUDA 12.8 wheel index.
+# - llama.cpp is installed from source with CUDA enabled.
+
+--extra-index-url https://download.pytorch.org/whl/cu128
+
+-e .
+
+# Data science / analysis
+matplotlib
+numpy
+pandas
+pillow
+pyarrow
+scikit-learn
+scipy
+seaborn
+tqdm
+
+# Core tensor / GPU runtime
+torch
+torchvision
+torchaudio
+
+# Model loading / inference ecosystem
+accelerate
+bitsandbytes ; platform_system == "Linux" and platform_machine == "x86_64"
+datasets
+einops
+evaluate
+huggingface-hub
+# Install llama-cpp-python separately so CUDA build flags can be passed correctly.
+peft
+safetensors
+sentence-transformers
+sentencepiece
+tiktoken
+tokenizers
+transformers
+vllm ; platform_system == "Linux" and platform_machine == "x86_64"

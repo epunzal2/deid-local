@@ -8,8 +8,14 @@ Contributor setup and workflow for `deid-local`.
 
 ```bash
 uv sync --managed-python --python 3.12.9 --extra dev
+uv pip install -r requirements-mac.txt
+CMAKE_ARGS="-DGGML_METAL=on" FORCE_CMAKE=1 \
+  uv pip install --no-binary llama-cpp-python llama-cpp-python
 uv run pre-commit install
 ```
+
+`uv sync` creates the repo-local `.venv/` automatically. Use `uv pip ...` for extra
+requirements in that environment.
 
 ### Fallback: `pip`
 
@@ -17,9 +23,36 @@ uv run pre-commit install
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -e ".[dev]"
+python -m pip install -r requirements.txt
 pre-commit install
 ```
+
+### Local macOS runtime install
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements-mac.txt
+CMAKE_ARGS="-DGGML_METAL=on" FORCE_CMAKE=1 \
+  python -m pip install --no-binary llama-cpp-python llama-cpp-python
+```
+
+### HPC GPU install
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements-hpc.txt
+CMAKE_ARGS="-DGGML_CUDA=on" FORCE_CMAKE=1 \
+  python -m pip install --no-binary llama-cpp-python llama-cpp-python
+```
+
+The preferred cluster helper is `scripts/bootstrap_hpc.sh`, not a generic top-level
+`setup.sh`, because the name makes the target environment explicit and leaves room for
+future platform-specific bootstrap scripts. Use `scripts/bootstrap_mac.sh` for the
+macOS runtime stack when you want the same behavior locally.
 
 ## Daily commands
 

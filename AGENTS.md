@@ -44,6 +44,12 @@ Environment conventions:
 - Respect the repo's `.python-version` pin when creating or syncing environments, and
   prefer uv-managed Python builds over whatever interpreter happens to be active in the
   shell.
+- Keep `requirements.txt` as the pip-compatible fallback install file generated from
+  `uv.lock`.
+- Keep `requirements-mac.txt` as the curated local macOS ML/LLM runtime install file.
+- Keep `requirements-hpc.txt` as the curated Linux/NVIDIA HPC runtime install file.
+- Install `llama-cpp-python` separately from the requirement files when backend-specific
+  build flags such as Metal or CUDA must be passed.
 - Keep machine-specific paths, scheduler options, and GPU settings in configuration or
   launch wrappers, not in core Python modules.
 
@@ -85,6 +91,9 @@ Rules:
 - `ruff` is the required lint and formatting gate for Python code.
 - Default setup:
   `uv sync --managed-python --python 3.12.9 --extra dev`
+- `uv sync` creates the repo-local `.venv/` automatically.
+- When `.venv/` was created by `uv`, install additional requirement files with
+  `uv pip install ...` rather than `python -m pip install ...`.
 - Install hooks with:
   `uv run pre-commit install`
 - Run targeted checks for local edits:
@@ -95,7 +104,15 @@ Rules:
   `uv run pre-commit run`
 - `pip` fallback:
   `python -m venv .venv && source .venv/bin/activate &&
-  python -m pip install -e ".[dev]"`
+  python -m pip install -r requirements.txt`
+- Local macOS runtime install:
+  `python -m venv .venv && source .venv/bin/activate &&
+  python -m pip install -r requirements-mac.txt`
+- HPC GPU install:
+  `python -m venv .venv && source .venv/bin/activate &&
+  python -m pip install -r requirements-hpc.txt`
+- Use explicit bootstrap scripts when environment-specific post-install steps are
+  required, such as Metal or CUDA builds for `llama-cpp-python`.
 
 ## 5) Package management
 
@@ -106,6 +123,8 @@ Rules:
 - Keep the dependency graph lean and remove unused packages promptly.
 - Expose CLIs through `project.scripts`.
 - Commit lock artifacts when they are part of the supported workflow.
+- Keep platform-specific GPU requirements in dedicated requirement files rather than
+  mixing them into the base local development environment.
 
 ## 6) Git workflow
 
@@ -145,6 +164,8 @@ Useful commands:
 - Write errors to stderr.
 - Avoid interactive prompts in CI paths.
 - Do not add throwaway test scripts; use `tests/` or `scratch/`.
+- Prefer explicit names like `bootstrap_hpc.sh` over generic names like `setup.sh`
+  when the script targets a specific environment.
 
 ## 9) Pull requests
 

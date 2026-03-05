@@ -12,10 +12,17 @@ planning conventions, and a small CLI surface for environment checks.
 
 ```bash
 uv sync --managed-python --python 3.12.9 --extra dev
+uv pip install -r requirements-mac.txt
+CMAKE_ARGS="-DGGML_METAL=on" FORCE_CMAKE=1 \
+  uv pip install --no-binary llama-cpp-python llama-cpp-python
 uv run pre-commit install
 uv run pytest
 uv run deid-local doctor
 ```
+
+`uv sync` creates the repo-local `.venv/` automatically. When that environment was
+created by `uv`, install additional requirement files with `uv pip ...`, not
+`python -m pip ...`.
 
 ### Fallback: `pip`
 
@@ -23,10 +30,54 @@ uv run deid-local doctor
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -e ".[dev]"
+python -m pip install -r requirements.txt
 pre-commit install
 pytest
 deid-local doctor
+```
+
+### Local macOS runtime stack
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements-mac.txt
+CMAKE_ARGS="-DGGML_METAL=on" FORCE_CMAKE=1 \
+  python -m pip install --no-binary llama-cpp-python llama-cpp-python
+```
+
+If your current `.venv` was created by `uv`, use:
+
+```bash
+uv pip install -r requirements-mac.txt
+CMAKE_ARGS="-DGGML_METAL=on" FORCE_CMAKE=1 \
+  uv pip install --no-binary llama-cpp-python llama-cpp-python
+```
+
+Or use the helper script:
+
+```bash
+scripts/bootstrap_mac.sh --help
+scripts/bootstrap_mac.sh
+```
+
+### HPC GPU environment
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements-hpc.txt
+CMAKE_ARGS="-DGGML_CUDA=on" FORCE_CMAKE=1 \
+  python -m pip install --no-binary llama-cpp-python llama-cpp-python
+```
+
+Or use the helper script:
+
+```bash
+scripts/bootstrap_hpc.sh --help
+scripts/bootstrap_hpc.sh
 ```
 
 ## Development workflow
@@ -37,6 +88,11 @@ so the core package stays testable on a laptop while still supporting cluster-si
 debugging. Production deployment is expected to run on the HPC cluster. The repository
 pins Python via [`.python-version`](./.python-version), and the `--managed-python`
 setup command keeps `uv` from reusing a Conda interpreter from your shell.
+[`requirements.txt`](./requirements.txt) is the pip-compatible fallback generated from
+`uv.lock`. [`requirements-mac.txt`](./requirements-mac.txt) is the local macOS ML/LLM
+runtime stack. [`requirements-hpc.txt`](./requirements-hpc.txt) is the Linux/NVIDIA
+HPC runtime stack for cluster installs. `llama-cpp-python` is installed as a separate
+step so Metal or CUDA build flags can be applied correctly.
 
 Before larger or riskier changes, add a plan in [`./.plans/`](./.plans/) using the
 repository template.

@@ -1,0 +1,38 @@
+# Local macOS runtime / experimentation environment.
+#
+# Assumptions:
+# - Apple Silicon or another modern macOS system with Xcode Command Line Tools
+#   installed.
+# - PyTorch comes from the default PyPI index for macOS.
+# - llama.cpp is installed via llama-cpp-python with Metal enabled.
+
+-e .
+
+# Data science / analysis
+matplotlib
+numpy
+pandas
+pillow
+pyarrow
+scikit-learn
+scipy
+seaborn
+tqdm
+
+# Core ML / LLM runtime
+accelerate
+datasets
+einops
+evaluate
+huggingface-hub
+# Install llama-cpp-python separately so Metal build flags can be passed correctly.
+peft
+safetensors
+sentence-transformers
+sentencepiece
+tiktoken
+tokenizers
+torch
+torchaudio
+torchvision
+transformers
