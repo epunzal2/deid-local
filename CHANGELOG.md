@@ -23,3 +23,9 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 - Added `scripts/bootstrap_mac.sh` as the explicit macOS environment bootstrap helper.
 - Updated the macOS bootstrap flow to install experimental Apple Silicon `vllm` from
   source and aligned `requirements-mac.txt` with the working package versions.
+- Typed LLM runtime settings, local `llama.cpp` and OpenAI-compatible provider
+  adapters, and health-check helpers.
+- `deid-local llm ...` and `deid-local model ...` CLI surfaces for config,
+  health, inference, download, and verification.
+- Generic local/HPC deployment wrappers plus deployment documentation for the
+  default `./models/llm/Phi-3-mini-4k-instruct-q4.gguf` smoke-test model.

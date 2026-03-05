@@ -3,8 +3,9 @@
 Local-first Python scaffolding for LLM workflows that are developed on a MacBook and
 then promoted to a Linux HPC environment with GPU access.
 
-The repository currently provides a clean baseline: packaging, linting, tests,
-planning conventions, and a small CLI surface for environment checks.
+The repository now provides a typed deployment substrate for local `llama.cpp`
+smoke tests and remote OpenAI-compatible HTTP inference, plus generic SLURM
+launcher wrappers for HPC smoke validation.
 
 ## Quickstart
 
@@ -89,6 +90,35 @@ scripts/bootstrap_hpc.sh --help
 scripts/bootstrap_hpc.sh
 ```
 
+## LLM Deployment Surface
+
+The default smoke-test model path is
+`./models/llm/Phi-3-mini-4k-instruct-q4.gguf`.
+
+### Local `llama.cpp`
+
+```bash
+scripts/deployment/macos/setup_llama_cpp.sh
+uv run deid-local model fetch
+uv run deid-local llm health --provider llama_cpp
+uv run deid-local llm infer --provider llama_cpp --prompt "Reply with pong."
+```
+
+### Remote `vllm`
+
+```bash
+export DEID_LLM_PROVIDER=vllm
+export DEID_VLLM_BASE_URL=http://127.0.0.1:8000
+export DEID_VLLM_MODEL=meta-llama/Llama-3-8B-Instruct
+export DEID_VLLM_HEALTH_URL=http://127.0.0.1:8000/health
+
+uv run deid-local llm config
+uv run deid-local llm health
+uv run deid-local llm infer --prompt "Reply with pong."
+```
+
+More detail lives in [`docs/deployment.md`](./docs/deployment.md).
+
 ## Development workflow
 
 Use local macOS runs and Linux SLURM interactive runs as development and testing
@@ -115,6 +145,8 @@ uv run ruff format --check .
 uv run pytest
 uv run deid-local --help
 uv run deid-local doctor
+uv run deid-local llm config
+uv run deid-local model verify
 ```
 
 ## Repository layout
@@ -130,7 +162,5 @@ tests/                Unit and integration tests
 
 ## Next steps
 
-- Add the first concrete runtime/backend adapter under `src/deid_local/adapters/`.
-- Add cluster submission or job-launch wrappers under `scripts/` once the target SLURM
-  workflow is known.
-- Expand `docs/` with deployment notes when the local execution path stabilizes.
+- Add the local browser chat window for smoke testing.
+- Expand provider coverage only when a concrete runtime needs it.
