@@ -16,8 +16,7 @@ Options:
                           (default: unsafe-best-match)
   --skip-llama-cpp        Skip CUDA build/install for llama-cpp-python
   --llama-cpp-cuda-arch   Explicit CMake CUDA arch list for llama-cpp build
-                          (example: 80 or 70;80;90). If unset, CMake uses
-                          native detection, which requires a visible GPU.
+                          (default: 70;80;89)
   --help                  Show this help text and exit
 EOF
 }
@@ -26,7 +25,7 @@ python_spec="3.12.9"
 venv_dir=".venv"
 index_strategy="unsafe-best-match"
 skip_llama_cpp="false"
-llama_cpp_cuda_arch=""
+llama_cpp_cuda_arch="70;80;89"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -101,27 +100,6 @@ EOF
     exit 1
   fi
 
-  if [[ -z "${llama_cpp_cuda_arch}" ]]; then
-    if ! command -v nvidia-smi >/dev/null 2>&1 || ! nvidia-smi -L >/dev/null 2>&1; then
-      cat >&2 <<'EOF'
-No visible GPU detected on this node, so CMake cannot use CUDA_ARCHITECTURES=native.
-
-Choose one:
-  1) Skip llama.cpp CUDA build for now:
-     scripts/bootstrap_hpc.sh --skip-llama-cpp
-
-  2) Run bootstrap on a GPU node (recommended for native detection), e.g.:
-     srun -p gpu --gres=gpu:1 --time=00:30:00 --pty bash
-     module load cuda/12.1
-     scripts/bootstrap_hpc.sh
-
-  3) Provide explicit architectures when building on a non-GPU node:
-     scripts/bootstrap_hpc.sh --llama-cpp-cuda-arch "70;80;90"
-EOF
-      exit 1
-    fi
-  fi
-
   cmake_args="-DGGML_CUDA=on"
   if [[ -n "${llama_cpp_cuda_arch}" ]]; then
     cmake_args="${cmake_args} -DCMAKE_CUDA_ARCHITECTURES=${llama_cpp_cuda_arch}"
@@ -143,6 +121,7 @@ cat <<EOF
 HPC environment bootstrapped in ${venv_path}
 Index strategy used: ${index_strategy}
 llama-cpp-python CUDA build: ${llama_cpp_status}
+llama-cpp CUDA architectures: ${llama_cpp_cuda_arch}
 Activate with:
   source "${venv_path}/bin/activate"
 EOF
