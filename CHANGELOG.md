@@ -31,3 +31,5 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
   default `./models/llm/Phi-3-mini-4k-instruct-q4.gguf` smoke-test model.
 - A local Flask-backed browser chat window for smoke testing the configured LLM
   provider without bringing in the older RAG chat UI.
+- An opt-in macOS end-to-end `llama.cpp` verification test and wrapper that can
+  reuse a sibling main worktree's `.venv` and model asset.
