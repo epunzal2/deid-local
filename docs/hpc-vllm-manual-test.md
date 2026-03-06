@@ -11,7 +11,7 @@ Fill these once before running commands:
 export PROJECT_ROOT="$(pwd)"
 export SHARED_MODEL_DIR="${PROJECT_ROOT}/models/llm/Llama-3-8B-Instruct"
 export VLLM_ENDPOINT_DIR="${PROJECT_ROOT}/models/llm/vllm-endpoints"
-export VLLM_API_KEY="<shared-api-key>"
+export VLLM_API_KEY="$(openssl rand -hex 32)"
 mkdir -p "${SHARED_MODEL_DIR}" "${VLLM_ENDPOINT_DIR}"
 ```
 
