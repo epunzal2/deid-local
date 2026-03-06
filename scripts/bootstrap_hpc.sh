@@ -15,9 +15,10 @@ Options:
   --index-strategy VALUE  uv index strategy for requirements install
                           (default: unsafe-best-match)
   --uv-cache-dir PATH     uv cache directory (default: \$UV_CACHE_DIR or
-                          <repo>/.cache/uv)
+                          /scratch/\$USER/.cache/uv or <repo>/.cache/uv)
   --tmp-dir PATH          temp directory for build/extract steps
-                          (default: \$TMPDIR or <repo>/.tmp)
+                          (default: \$TMPDIR or /scratch/\$USER/tmp or
+                          <repo>/.tmp)
   --skip-llama-cpp        Skip CUDA build/install for llama-cpp-python
   --llama-cpp-cuda-arch   Explicit CMake CUDA arch list for llama-cpp build
                           (default: 70;80;89)
@@ -78,12 +79,25 @@ done
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "${script_dir}/.." && pwd)"
 venv_path="${repo_root}/${venv_dir}"
+scratch_root="/scratch/${USER:-}"
 
 if [[ -z "${uv_cache_dir}" ]]; then
-  uv_cache_dir="${UV_CACHE_DIR:-${repo_root}/.cache/uv}"
+  if [[ -n "${UV_CACHE_DIR:-}" ]]; then
+    uv_cache_dir="${UV_CACHE_DIR}"
+  elif [[ -n "${USER:-}" && -d "${scratch_root}" && -w "${scratch_root}" ]]; then
+    uv_cache_dir="${scratch_root}/.cache/uv"
+  else
+    uv_cache_dir="${repo_root}/.cache/uv"
+  fi
 fi
 if [[ -z "${tmp_dir}" ]]; then
-  tmp_dir="${TMPDIR:-${repo_root}/.tmp}"
+  if [[ -n "${TMPDIR:-}" ]]; then
+    tmp_dir="${TMPDIR}"
+  elif [[ -n "${USER:-}" && -d "${scratch_root}" && -w "${scratch_root}" ]]; then
+    tmp_dir="${scratch_root}/tmp"
+  else
+    tmp_dir="${repo_root}/.tmp"
+  fi
 fi
 
 mkdir -p "${uv_cache_dir}" "${tmp_dir}"
