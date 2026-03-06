@@ -5,11 +5,14 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shlex
 import sys
 from collections.abc import Sequence
+from pathlib import Path
 
 from llm_local.adapters.llm import LLMRequest, build_provider
 from llm_local.core.chat_service import create_chat_app
+from llm_local.core.endpoint_discovery import read_endpoint, resolve_endpoint_dir
 from llm_local.core.health import probe_provider_health
 from llm_local.core.llm_settings import (
     DEFAULT_TEST_MODEL_PATH,
@@ -91,6 +94,69 @@ def _run_llm_chat(args: argparse.Namespace) -> int:
     print(f"Starting chat server at http://{args.host}:{args.port}")
     app.run(host=args.host, port=args.port, debug=False)
     return 0
+
+
+def _run_llm_connect(args: argparse.Namespace) -> int:
+    endpoint_dir: Path | None
+    if args.endpoint_dir:
+        endpoint_dir = Path(args.endpoint_dir).expanduser()
+    else:
+        endpoint_dir = resolve_endpoint_dir()
+    if endpoint_dir is None:
+        print(
+            "VLLM endpoint directory is not configured. Use --endpoint-dir or set "
+            "VLLM_ENDPOINT_DIR.",
+            file=sys.stderr,
+        )
+        return 1
+
+    try:
+        endpoint = read_endpoint(endpoint_dir)
+    except (OSError, ValueError) as exc:
+        print(f"Failed to read endpoint metadata: {exc}", file=sys.stderr)
+        return 1
+    if endpoint is None:
+        print(f"Endpoint file not found: {endpoint_dir / 'vllm-endpoint.json'}", file=sys.stderr)
+        return 1
+
+    base_url = args.base_url or endpoint.base_url
+    health_url = args.health_url or endpoint.health_url
+    model = args.model or endpoint.model
+    api_key = args.api_key
+
+    print(f"export LLM_PROVIDER={shlex.quote('vllm')}")
+    print(f"export VLLM_ENDPOINT_DIR={shlex.quote(str(endpoint_dir))}")
+    print(f"export VLLM_BASE_URL={shlex.quote(base_url)}")
+    print(f"export VLLM_HEALTH_URL={shlex.quote(health_url)}")
+    print(f"export VLLM_MODEL={shlex.quote(model)}")
+    if api_key:
+        print(f"export VLLM_API_KEY={shlex.quote(api_key)}")
+    elif endpoint.api_key_required:
+        print(
+            "# Endpoint requires authentication; set VLLM_API_KEY before health/infer.",
+            file=sys.stderr,
+        )
+
+    if not args.test:
+        return 0
+
+    settings = load_runtime_settings(
+        overrides=LLMSettingsOverrides(
+            provider_name="vllm",
+            base_url=base_url,
+            model=model,
+            api_key=api_key,
+            health_url=health_url,
+        )
+    )
+    result = probe_provider_health(
+        settings,
+        wait_seconds=args.wait_seconds,
+        interval_seconds=args.interval_seconds,
+    )
+    output = sys.stdout if result.ok else sys.stderr
+    print(result.message, file=output)
+    return 0 if result.ok else 1
 
 
 def _run_model_fetch(args: argparse.Namespace) -> int:
@@ -217,6 +283,34 @@ def build_parser() -> argparse.ArgumentParser:
     )
     llm_chat_parser.set_defaults(handler=_run_llm_chat)
 
+    llm_connect_parser = llm_subparsers.add_parser(
+        "connect",
+        parents=[llm_common],
+        help="Read a shared vLLM endpoint file and print export commands.",
+    )
+    llm_connect_parser.add_argument(
+        "--endpoint-dir",
+        help="Directory containing vllm-endpoint.json. Defaults to VLLM_ENDPOINT_DIR.",
+    )
+    llm_connect_parser.add_argument(
+        "--test",
+        action="store_true",
+        help="Run a health probe against the resolved endpoint after printing exports.",
+    )
+    llm_connect_parser.add_argument(
+        "--wait-seconds",
+        type=float,
+        default=30.0,
+        help="Maximum time to wait for a passing health probe when --test is set.",
+    )
+    llm_connect_parser.add_argument(
+        "--interval-seconds",
+        type=float,
+        default=2.0,
+        help="Delay between health probe attempts when --test is set.",
+    )
+    llm_connect_parser.set_defaults(handler=_run_llm_connect)
+
     model_parser = subparsers.add_parser("model", help="Fetch or verify local model assets.")
     model_parser.set_defaults(handler=_make_help_handler(model_parser))
     model_subparsers = model_parser.add_subparsers(dest="model_command")
@@ -309,6 +403,10 @@ def _build_llm_common_parser() -> argparse.ArgumentParser:
         help="Override the remote model identifier for HTTP-backed providers.",
     )
     parser.add_argument(
+        "--api-key",
+        help="Override the API key used for HTTP-backed providers.",
+    )
+    parser.add_argument(
         "--health-url",
         help="Override the health endpoint for HTTP-backed providers.",
     )
@@ -359,6 +457,7 @@ def _build_llm_overrides(args: argparse.Namespace) -> LLMSettingsOverrides:
         model_path=getattr(args, "model_path", None),
         base_url=getattr(args, "base_url", None),
         model=getattr(args, "model", None),
+        api_key=getattr(args, "api_key", None),
         health_url=getattr(args, "health_url", None),
         timeout_seconds=getattr(args, "timeout_seconds", None),
         max_retries=getattr(args, "max_retries", None),

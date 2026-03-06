@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from llm_local.cli import build_parser, main
+from llm_local.core.endpoint_discovery import EndpointInfo, write_endpoint
 
 
 def test_doctor_command_prints_runtime_summary(capsys) -> None:
@@ -113,3 +114,41 @@ def test_model_fetch_hf_uses_hf_token_from_env(monkeypatch, capsys, tmp_path: Pa
         "token": "token-from-env",
         "revision": "main",
     }
+
+
+def test_llm_connect_prints_exports_from_endpoint_file(capsys, tmp_path: Path) -> None:
+    endpoint_dir = tmp_path / "shared" / "endpoints"
+    write_endpoint(
+        EndpointInfo(
+            base_url="http://node01.example.edu:8000",
+            health_url="http://node01.example.edu:8000/health",
+            model="meta-llama/Llama-3-8B-Instruct",
+            node="node01.example.edu",
+            port=8000,
+            slurm_job_id="98765",
+            started_at="2026-03-06T15:00:00Z",
+            api_key_required=True,
+        ),
+        endpoint_dir,
+    )
+
+    exit_code = main(
+        [
+            "llm",
+            "connect",
+            "--endpoint-dir",
+            str(endpoint_dir),
+            "--api-key",
+            "shared-token",
+        ]
+    )
+
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "export LLM_PROVIDER=vllm" in captured.out
+    assert f"export VLLM_ENDPOINT_DIR={endpoint_dir}" in captured.out
+    assert "export VLLM_BASE_URL=http://node01.example.edu:8000" in captured.out
+    assert "export VLLM_HEALTH_URL=http://node01.example.edu:8000/health" in captured.out
+    assert "export VLLM_MODEL=meta-llama/Llama-3-8B-Instruct" in captured.out
+    assert "export VLLM_API_KEY=shared-token" in captured.out

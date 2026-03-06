@@ -10,7 +10,19 @@ from llm_local.cli import main
 
 
 class _MockOpenAIHandler(BaseHTTPRequestHandler):
+    _required_api_key: str | None = None
+
+    def _is_authorized(self) -> bool:
+        expected = self._required_api_key
+        if expected is None:
+            return True
+        return self.headers.get("Authorization") == f"Bearer {expected}"
+
     def do_GET(self) -> None:  # noqa: N802
+        if not self._is_authorized():
+            self.send_response(401)
+            self.end_headers()
+            return
         if self.path == "/health":
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
@@ -27,6 +39,10 @@ class _MockOpenAIHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self) -> None:  # noqa: N802
+        if not self._is_authorized():
+            self.send_response(401)
+            self.end_headers()
+            return
         if self.path != "/v1/chat/completions":
             self.send_response(404)
             self.end_headers()
@@ -55,8 +71,13 @@ class _MockOpenAIHandler(BaseHTTPRequestHandler):
 
 
 @contextmanager
-def _mock_openai_server() -> Iterator[str]:
-    server = ThreadingHTTPServer(("127.0.0.1", 0), _MockOpenAIHandler)
+def _mock_openai_server(*, expected_api_key: str | None = None) -> Iterator[str]:
+    handler_class = type(
+        "ConfiguredMockOpenAIHandler",
+        (_MockOpenAIHandler,),
+        {"_required_api_key": expected_api_key},
+    )
+    server = ThreadingHTTPServer(("127.0.0.1", 0), handler_class)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
@@ -113,3 +134,49 @@ def test_llm_infer_works_against_mock_http_server(capsys) -> None:
 
     assert exit_code == 0
     assert captured.out.strip() == "reply:ping"
+
+
+def test_http_commands_pass_api_key_when_provided(capsys) -> None:
+    with _mock_openai_server(expected_api_key="token-123") as base_url:
+        health_exit = main(
+            [
+                "llm",
+                "health",
+                "--provider",
+                "openai_http",
+                "--base-url",
+                base_url,
+                "--health-url",
+                f"{base_url}/health",
+                "--api-key",
+                "token-123",
+                "--wait-seconds",
+                "0.1",
+                "--interval-seconds",
+                "0",
+            ]
+        )
+        health_output = capsys.readouterr()
+
+        infer_exit = main(
+            [
+                "llm",
+                "infer",
+                "--provider",
+                "openai_http",
+                "--base-url",
+                base_url,
+                "--model",
+                "mock-model",
+                "--api-key",
+                "token-123",
+                "--prompt",
+                "ping",
+            ]
+        )
+        infer_output = capsys.readouterr()
+
+    assert health_exit == 0
+    assert "succeeded" in health_output.out
+    assert infer_exit == 0
+    assert infer_output.out.strip() == "reply:ping"
