@@ -67,9 +67,18 @@ uv venv --managed-python --python "${python_spec}" "${venv_path}"
 # shellcheck disable=SC1091
 source "${venv_path}/bin/activate"
 
+# Prefer GNU toolchain when available for any unavoidable native builds.
+if [[ -z "${CC:-}" ]] && command -v gcc >/dev/null 2>&1; then
+  export CC="gcc"
+fi
+if [[ -z "${CXX:-}" ]] && command -v g++ >/dev/null 2>&1; then
+  export CXX="g++"
+fi
+
 uv pip install \
   --python "${venv_path}/bin/python" \
   --index-strategy "${index_strategy}" \
+  --only-binary vllm \
   -r "${repo_root}/requirements-hpc.txt"
 
 if [[ "${skip_llama_cpp}" == "false" ]]; then

@@ -9,6 +9,7 @@
 # - With `uv pip`, also pass `--index-strategy unsafe-best-match` so resolution can
 #   combine PyPI and the CUDA index when mirrored packages (for example `setuptools`
 #   or `vllm`) have partial versions on the CUDA index.
+# - Keep `vllm` on a modern release line used by this repo's `vllm serve` scripts.
 # - llama.cpp is installed from source with CUDA enabled.
 
 --extra-index-url https://download.pytorch.org/whl/cu128
@@ -46,4 +47,4 @@ sentencepiece
 tiktoken
 tokenizers
 transformers
-vllm ; platform_system == "Linux" and platform_machine == "x86_64"
+vllm>=0.9.0.1,<0.12 ; platform_system == "Linux" and platform_machine == "x86_64"
