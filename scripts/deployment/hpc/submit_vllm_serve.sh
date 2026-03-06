@@ -16,6 +16,8 @@ Options:
   --time <HH:MM:SS>           SLURM walltime override
   --port <port>               Service port (default: env VLLM_PORT or 8000)
   --api-key <key>             API key passed to vLLM
+  --endpoint-dir <path>       Shared directory for vllm-endpoint.json
+                               (default: env VLLM_ENDPOINT_DIR)
   --max-model-len <tokens>    Max model length (default: env VLLM_MAX_MODEL_LEN
                                or 4096)
   --help                      Show this help message
@@ -47,6 +49,7 @@ GPUS="${VLLM_TENSOR_PARALLEL:-1}"
 TIME_OVERRIDE=""
 PORT="${VLLM_PORT:-8000}"
 API_KEY="${VLLM_API_KEY:-}"
+ENDPOINT_DIR="${VLLM_ENDPOINT_DIR:-}"
 MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-4096}"
 
 while (($# > 0)); do
@@ -69,6 +72,10 @@ while (($# > 0)); do
             ;;
         --api-key)
             API_KEY="$2"
+            shift 2
+            ;;
+        --endpoint-dir)
+            ENDPOINT_DIR="$2"
             shift 2
             ;;
         --max-model-len)
@@ -109,6 +116,9 @@ export VLLM_MAX_MODEL_LEN="${MAX_MODEL_LEN}"
 if [[ -n "${API_KEY}" ]]; then
     export VLLM_API_KEY="${API_KEY}"
 fi
+if [[ -n "${ENDPOINT_DIR}" ]]; then
+    export VLLM_ENDPOINT_DIR="${ENDPOINT_DIR}"
+fi
 
 echo "Submitting vLLM serve job:"
 echo "  script: ${SBATCH_SCRIPT}"
@@ -116,6 +126,9 @@ echo "  model: ${VLLM_MODEL}"
 echo "  gpus/tensor-parallel: ${VLLM_TENSOR_PARALLEL}"
 echo "  port: ${VLLM_PORT}"
 echo "  max model len: ${VLLM_MAX_MODEL_LEN}"
+if [[ -n "${ENDPOINT_DIR}" ]]; then
+    echo "  endpoint dir: ${ENDPOINT_DIR}"
+fi
 if [[ -n "${TIME_OVERRIDE}" ]]; then
     echo "  walltime: ${TIME_OVERRIDE}"
 fi
