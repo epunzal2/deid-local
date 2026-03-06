@@ -16,6 +16,7 @@ Bootstrap command:
 
 ```bash
 scripts/deployment/hpc/setup_env.sh
+./scripts/bootstrap_hpc.sh --help
 ```
 
 ## Quickstart

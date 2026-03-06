@@ -86,8 +86,8 @@ CMAKE_ARGS="-DGGML_CUDA=on" FORCE_CMAKE=1 CUDACXX="$(which nvcc)" \
 Or use the helper script:
 
 ```bash
-scripts/bootstrap_hpc.sh --help
-scripts/bootstrap_hpc.sh
+./scripts/bootstrap_hpc.sh --help
+./scripts/bootstrap_hpc.sh
 ```
 
 ## LLM Deployment Surface
