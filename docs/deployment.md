@@ -31,15 +31,14 @@ scripts/deployment/macos/verify_llama_cpp_e2e.sh
 ```
 
 The wrapper prefers the current worktree's `.venv` and model asset, but it also
-falls back to a sibling `../deid-local/.venv` and
-`../deid-local/models/llm/Phi-3-mini-4k-instruct-q4.gguf` when you are working
-from a feature worktree.
+falls back to a sibling `../deid-local/.venv` when you are working from a
+feature worktree. The model itself must be present in the active checkout at
+`./models/llm/Phi-3-mini-4k-instruct-q4.gguf`.
 
 To run the underlying pytest directly:
 
 ```bash
 export DEID_RUN_LLAMA_CPP_E2E=1
-export DEID_E2E_MODEL_PATH=/absolute/path/to/Phi-3-mini-4k-instruct-q4.gguf
 pytest tests/integration/test_llama_cpp_e2e.py -vv -s
 ```
 

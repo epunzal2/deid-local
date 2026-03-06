@@ -8,7 +8,6 @@ TIMESTAMP="$(date -u +"%Y%m%dT%H%M%SZ")"
 ARTIFACT_DIR="${PROJECT_ROOT}/verification"
 LOG_PATH="${ARTIFACT_DIR}/llama_cpp_e2e_${TIMESTAMP}.log"
 DEFAULT_MODEL_PATH="${PROJECT_ROOT}/models/llm/Phi-3-mini-4k-instruct-q4.gguf"
-SIBLING_MODEL_PATH="${PROJECT_ROOT}/../deid-local/models/llm/Phi-3-mini-4k-instruct-q4.gguf"
 DEFAULT_VENV_PATH="${PROJECT_ROOT}/.venv"
 SIBLING_VENV_PATH="${PROJECT_ROOT}/../deid-local/.venv"
 
@@ -20,16 +19,10 @@ raise SystemExit(0 if importlib.util.find_spec("llama_cpp") else 1)
 PY
 }
 
-MODEL_PATH="${DEID_E2E_MODEL_PATH:-}"
-if [[ -z "${MODEL_PATH}" ]]; then
-  if [[ -f "${DEFAULT_MODEL_PATH}" ]]; then
-    MODEL_PATH="${DEFAULT_MODEL_PATH}"
-  elif [[ -f "${SIBLING_MODEL_PATH}" ]]; then
-    MODEL_PATH="${SIBLING_MODEL_PATH}"
-  else
-    echo "No GGUF found at ${DEFAULT_MODEL_PATH} or ${SIBLING_MODEL_PATH}" >&2
-    exit 1
-  fi
+MODEL_PATH="${DEFAULT_MODEL_PATH}"
+if [[ ! -f "${MODEL_PATH}" ]]; then
+  echo "No GGUF found at ${DEFAULT_MODEL_PATH}" >&2
+  exit 1
 fi
 
 VENV_PATH="${DEID_VENV_PATH:-}"
@@ -59,7 +52,6 @@ fi
 
 export PYTHONPATH="${PROJECT_ROOT}/src"
 export DEID_RUN_LLAMA_CPP_E2E=1
-export DEID_E2E_MODEL_PATH="${MODEL_PATH}"
 
 {
   echo "UTC timestamp: ${TIMESTAMP}"

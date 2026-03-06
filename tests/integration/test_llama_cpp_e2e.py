@@ -74,13 +74,5 @@ def test_llama_cpp_end_to_end_on_macos() -> None:
 
 
 def _resolve_model_path(repo_root: Path) -> Path | None:
-    configured = os.environ.get("DEID_E2E_MODEL_PATH")
-    candidates = [
-        Path(configured) if configured else None,
-        repo_root / DEFAULT_TEST_MODEL_PATH,
-        repo_root.parent / "deid-local" / DEFAULT_TEST_MODEL_PATH,
-    ]
-    for candidate in candidates:
-        if candidate is not None and candidate.is_file():
-            return candidate
-    return None
+    model_path = repo_root / DEFAULT_TEST_MODEL_PATH
+    return model_path if model_path.is_file() else None
