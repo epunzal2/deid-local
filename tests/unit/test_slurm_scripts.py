@@ -5,6 +5,7 @@ import pytest
 HPC_SCRIPT_DIR = Path(__file__).resolve().parents[2] / "scripts" / "deployment" / "hpc"
 VLLM_SERVE_SCRIPT = HPC_SCRIPT_DIR / "vllm_serve.sbatch"
 SUBMIT_VLLM_SERVE_SCRIPT = HPC_SCRIPT_DIR / "submit_vllm_serve.sh"
+DOWNLOAD_VLLM_MODEL_SCRIPT = HPC_SCRIPT_DIR / "download_vllm_model.sh"
 
 
 def _sbatch_files() -> list[Path]:
@@ -37,6 +38,14 @@ def test_submit_vllm_serve_defaults_to_gpu_redhat_partition() -> None:
     content = SUBMIT_VLLM_SERVE_SCRIPT.read_text(encoding="utf-8")
     assert 'PARTITION="${SLURM_PARTITION:-gpu-redhat}"' in content
     assert "--partition)" in content
+
+
+def test_download_vllm_model_wrapper_is_download_only() -> None:
+    content = DOWNLOAD_VLLM_MODEL_SCRIPT.read_text(encoding="utf-8")
+    assert content.startswith("#!/usr/bin/env bash")
+    assert "Download-only helper for vLLM model snapshots." in content
+    assert "login/data-transfer node" in content
+    assert "fetch_model.sh" in content
 
 
 @pytest.mark.parametrize(

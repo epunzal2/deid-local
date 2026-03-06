@@ -55,6 +55,7 @@ Key wrapper commands:
 ```bash
 scripts/deployment/hpc/setup_env.sh
 scripts/deployment/hpc/fetch_model.sh --help
+scripts/deployment/hpc/download_vllm_model.sh --help
 scripts/deployment/hpc/submit_vllm_serve.sh --help
 scripts/deployment/hpc/check_vllm_status.sh --help
 scripts/deployment/hpc/stop_vllm_serve.sh --help

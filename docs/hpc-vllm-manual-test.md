@@ -33,8 +33,10 @@ Relay back:
 
 ## Step 2: Download model snapshot
 
+Run this step on a login/data-transfer node:
+
 ```bash
-scripts/deployment/hpc/fetch_model.sh \
+scripts/deployment/hpc/download_vllm_model.sh \
   --repo-id meta-llama/Llama-3-8B-Instruct \
   --output-dir "${SHARED_MODEL_DIR}"
 ```

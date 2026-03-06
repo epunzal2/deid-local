@@ -62,3 +62,5 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 - Updated HPC vLLM serve defaults to target the `gpu-redhat` SLURM partition.
 - Updated HPC bootstrap defaults to resolve packages for the RHEL9-compatible
   `x86_64-manylinux_2_28` platform.
+- Added `scripts/deployment/hpc/download_vllm_model.sh` as a dedicated
+  login/data-transfer-node download-only step for vLLM model snapshots.
