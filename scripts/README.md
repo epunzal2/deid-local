@@ -19,5 +19,7 @@ Current deployment wrappers:
 - `scripts/deployment/hpc/setup_env.sh`
 - `scripts/deployment/hpc/llama_cpp_smoke.sbatch`
 - `scripts/deployment/hpc/vllm_smoke.sbatch`
+- `scripts/deployment/hpc/vllm_serve.sbatch`
 - `scripts/deployment/hpc/submit_llama_cpp_smoke.sh`
 - `scripts/deployment/hpc/submit_vllm_smoke.sh`
+- `scripts/deployment/hpc/submit_vllm_serve.sh`
