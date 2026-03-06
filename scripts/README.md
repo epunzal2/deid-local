@@ -6,7 +6,8 @@ Place thin wrappers and explicit environment bootstrap helpers here.
   `requirements-mac.txt`, build `llama-cpp-python` with Metal enabled, and install
   `vllm` from `scratch/vllm-source`
 - `bootstrap_hpc.sh`: create a virtual environment and install
-  `requirements-hpc.txt`, then build `llama-cpp-python` with CUDA enabled
+  `requirements-hpc.txt` with uv's `unsafe-best-match` index strategy, then build
+  `llama-cpp-python` with CUDA enabled
 
 Thin wrappers live here and call into package code under `src/`.
 

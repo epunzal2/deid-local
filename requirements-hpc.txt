@@ -6,6 +6,9 @@
 # - Python packages provide the user-space CUDA libraries; this file does not install
 #   the system driver or CUDA toolkit modules.
 # - The PyTorch stack should come from the CUDA 12.8 wheel index.
+# - With `uv pip`, also pass `--index-strategy unsafe-best-match` so resolution can
+#   combine PyPI and the CUDA index when mirrored packages (for example `setuptools`
+#   or `vllm`) have partial versions on the CUDA index.
 # - llama.cpp is installed from source with CUDA enabled.
 
 --extra-index-url https://download.pytorch.org/whl/cu128

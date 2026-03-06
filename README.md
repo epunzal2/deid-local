@@ -75,12 +75,12 @@ scripts/bootstrap_mac.sh
 ### HPC GPU environment
 
 ```bash
-python3 -m venv .venv
+uv venv --managed-python --python 3.12.9 .venv
 source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements-hpc.txt
-CMAKE_ARGS="-DGGML_CUDA=on" FORCE_CMAKE=1 \
-  python -m pip install --no-binary llama-cpp-python llama-cpp-python
+uv pip install --index-strategy unsafe-best-match -r requirements-hpc.txt
+module load cuda/12.1
+CMAKE_ARGS="-DGGML_CUDA=on" FORCE_CMAKE=1 CUDACXX="$(which nvcc)" \
+  uv pip install --no-binary llama-cpp-python llama-cpp-python
 ```
 
 Or use the helper script:
