@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import importlib.util
+
+import pytest
+
 from deid_local.adapters.llm.base import LLMResponse
 from deid_local.core.chat_service import ChatSession, create_chat_app
 
@@ -18,6 +22,9 @@ class _RecordingProvider:
 
 
 def test_chat_app_routes_and_clear_behavior() -> None:
+    if importlib.util.find_spec("flask") is None:
+        pytest.skip("Install the optional `chat` extra to run the chat app integration test")
+
     provider = _RecordingProvider()
     session = ChatSession()
     app = create_chat_app(provider, session=session)
