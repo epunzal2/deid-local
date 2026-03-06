@@ -12,7 +12,7 @@ from pathlib import Path
 
 from llm_local.adapters.llm import LLMRequest, build_provider
 from llm_local.core.chat_service import create_chat_app
-from llm_local.core.endpoint_discovery import read_endpoint, resolve_endpoint_dir
+from llm_local.core.endpoint_discovery import EndpointInfo, read_endpoint, resolve_endpoint_dir
 from llm_local.core.health import probe_provider_health
 from llm_local.core.llm_settings import (
     DEFAULT_TEST_MODEL_PATH,
@@ -20,6 +20,7 @@ from llm_local.core.llm_settings import (
     load_runtime_settings,
 )
 from llm_local.core.runtime import build_runtime_summary, format_runtime_summary
+from llm_local.core.server_status import build_server_status, format_server_status
 from llm_local.utils.model_assets import (
     download_hf_snapshot,
     download_model_asset,
@@ -97,27 +98,10 @@ def _run_llm_chat(args: argparse.Namespace) -> int:
 
 
 def _run_llm_connect(args: argparse.Namespace) -> int:
-    endpoint_dir: Path | None
-    if args.endpoint_dir:
-        endpoint_dir = Path(args.endpoint_dir).expanduser()
-    else:
-        endpoint_dir = resolve_endpoint_dir()
-    if endpoint_dir is None:
-        print(
-            "VLLM endpoint directory is not configured. Use --endpoint-dir or set "
-            "VLLM_ENDPOINT_DIR.",
-            file=sys.stderr,
-        )
+    resolved = _resolve_endpoint(args)
+    if resolved is None:
         return 1
-
-    try:
-        endpoint = read_endpoint(endpoint_dir)
-    except (OSError, ValueError) as exc:
-        print(f"Failed to read endpoint metadata: {exc}", file=sys.stderr)
-        return 1
-    if endpoint is None:
-        print(f"Endpoint file not found: {endpoint_dir / 'vllm-endpoint.json'}", file=sys.stderr)
-        return 1
+    endpoint_dir, endpoint = resolved
 
     base_url = args.base_url or endpoint.base_url
     health_url = args.health_url or endpoint.health_url
@@ -157,6 +141,18 @@ def _run_llm_connect(args: argparse.Namespace) -> int:
     output = sys.stdout if result.ok else sys.stderr
     print(result.message, file=output)
     return 0 if result.ok else 1
+
+
+def _run_llm_status(args: argparse.Namespace) -> int:
+    resolved = _resolve_endpoint(args)
+    if resolved is None:
+        return 1
+    _endpoint_dir, endpoint = resolved
+
+    api_key = args.api_key or os.environ.get("VLLM_API_KEY")
+    status = build_server_status(endpoint, api_key=api_key)
+    print(format_server_status(status))
+    return 0 if status.healthy else 1
 
 
 def _run_model_fetch(args: argparse.Namespace) -> int:
@@ -310,6 +306,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="Delay between health probe attempts when --test is set.",
     )
     llm_connect_parser.set_defaults(handler=_run_llm_connect)
+
+    llm_status_parser = llm_subparsers.add_parser(
+        "status",
+        parents=[llm_common],
+        help="Aggregate endpoint health, SLURM state, and served model information.",
+    )
+    llm_status_parser.add_argument(
+        "--endpoint-dir",
+        help="Directory containing vllm-endpoint.json. Defaults to VLLM_ENDPOINT_DIR.",
+    )
+    llm_status_parser.set_defaults(handler=_run_llm_status)
 
     model_parser = subparsers.add_parser("model", help="Fetch or verify local model assets.")
     model_parser.set_defaults(handler=_make_help_handler(model_parser))
@@ -467,6 +474,31 @@ def _build_llm_overrides(args: argparse.Namespace) -> LLMSettingsOverrides:
         llama_gpu_layers=getattr(args, "llama_gpu_layers", None),
         llama_chat_format=getattr(args, "llama_chat_format", None),
     )
+
+
+def _resolve_endpoint(args: argparse.Namespace) -> tuple[Path, EndpointInfo] | None:
+    endpoint_dir: Path | None
+    if getattr(args, "endpoint_dir", None):
+        endpoint_dir = Path(args.endpoint_dir).expanduser()
+    else:
+        endpoint_dir = resolve_endpoint_dir()
+    if endpoint_dir is None:
+        print(
+            "VLLM endpoint directory is not configured. Use --endpoint-dir or set "
+            "VLLM_ENDPOINT_DIR.",
+            file=sys.stderr,
+        )
+        return None
+
+    try:
+        endpoint = read_endpoint(endpoint_dir)
+    except (OSError, ValueError) as exc:
+        print(f"Failed to read endpoint metadata: {exc}", file=sys.stderr)
+        return None
+    if endpoint is None:
+        print(f"Endpoint file not found: {endpoint_dir / 'vllm-endpoint.json'}", file=sys.stderr)
+        return None
+    return endpoint_dir, endpoint
 
 
 def _make_help_handler(parser: argparse.ArgumentParser):
