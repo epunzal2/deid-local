@@ -70,6 +70,37 @@ uv run deid-local llm health --provider vllm
 uv run deid-local llm infer --provider vllm --prompt "Reply with pong."
 ```
 
+## Local macOS `vllm` CPU verification
+
+This is a local development verification path, not an HPC-parity check. Use it
+only to validate the client/server integration on your Mac.
+
+Put a small Hugging Face model snapshot under:
+
+```text
+./models/llm/opt-125m
+```
+
+One workable CPU-sized example is:
+
+```bash
+huggingface-cli download facebook/opt-125m --local-dir ./models/llm/opt-125m --local-dir-use-symlinks False
+```
+
+Then run:
+
+```bash
+scripts/deployment/macos/verify_vllm_e2e.sh
+```
+
+The wrapper starts a local `vllm serve` process on your Mac, waits for health,
+then verifies both:
+
+- `deid-local llm health --provider vllm`
+- `deid-local llm infer --provider vllm`
+
+using the repo-local model path under `./models/llm`.
+
 ## SLURM Wrappers
 
 The HPC wrappers are intentionally generic. They rely on `uv`, repo-relative

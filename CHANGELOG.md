@@ -33,3 +33,6 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
   provider without bringing in the older RAG chat UI.
 - An opt-in macOS end-to-end `llama.cpp` verification test and wrapper that can
   reuse a sibling main worktree's `.venv` and model asset.
+- An opt-in macOS CPU `vllm` end-to-end verification test and wrapper that
+  starts a local OpenAI-compatible `vllm serve` process using
+  `./models/llm/opt-125m`.

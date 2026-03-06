@@ -14,6 +14,7 @@ Current deployment wrappers:
 
 - `scripts/deployment/macos/setup_llama_cpp.sh`
 - `scripts/deployment/macos/verify_llama_cpp_e2e.sh`
+- `scripts/deployment/macos/verify_vllm_e2e.sh`
 - `scripts/deployment/macos/run_chat_window.sh`
 - `scripts/deployment/hpc/setup_env.sh`
 - `scripts/deployment/hpc/llama_cpp_smoke.sbatch`

@@ -119,6 +119,13 @@ uv run deid-local llm health
 uv run deid-local llm infer --prompt "Reply with pong."
 ```
 
+### Local macOS `vllm` CPU verification
+
+```bash
+huggingface-cli download facebook/opt-125m --local-dir ./models/llm/opt-125m --local-dir-use-symlinks False
+scripts/deployment/macos/verify_vllm_e2e.sh
+```
+
 More detail lives in [`docs/deployment.md`](./docs/deployment.md).
 
 ## Development workflow
