@@ -130,6 +130,7 @@ For HPC multi-user serving, use:
 
 - [`docs/hpc-vllm-guide.md`](./docs/hpc-vllm-guide.md)
 - [`docs/hpc-vllm-manual-test.md`](./docs/hpc-vllm-manual-test.md)
+- [`docs/hpc-glibc-partition-note.md`](./docs/hpc-glibc-partition-note.md)
 
 General deployment details live in [`docs/deployment.md`](./docs/deployment.md).
 

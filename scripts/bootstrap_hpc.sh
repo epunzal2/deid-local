@@ -13,7 +13,7 @@ Options:
   --python PYTHON         Python version/interpreter for uv (default: 3.12.9)
   --venv-dir PATH         Virtual environment path (default: .venv)
   --python-platform VALUE Target platform tag for uv resolution
-                          (default: x86_64-manylinux2014)
+                          (default: x86_64-manylinux_2_28)
   --index-strategy VALUE  uv index strategy for requirements install
                           (default: unsafe-best-match)
   --uv-cache-dir PATH     uv cache directory (default: \$UV_CACHE_DIR or
@@ -30,7 +30,7 @@ EOF
 
 python_spec="3.12.9"
 venv_dir=".venv"
-python_platform="x86_64-manylinux2014"
+python_platform="x86_64-manylinux_2_28"
 index_strategy="unsafe-best-match"
 uv_cache_dir=""
 tmp_dir=""

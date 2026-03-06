@@ -57,3 +57,8 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
 - New HPC docs:
   `docs/hpc-vllm-guide.md` and `docs/hpc-vllm-manual-test.md`, with
   `docs/deployment.md` updated to link the runbooks.
+- Added `docs/hpc-glibc-partition-note.md` to document mixed GLIBC behavior across
+  cluster partitions and the deployment direction to `gpu-redhat`.
+- Updated HPC vLLM serve defaults to target the `gpu-redhat` SLURM partition.
+- Updated HPC bootstrap defaults to resolve packages for the RHEL9-compatible
+  `x86_64-manylinux_2_28` platform.

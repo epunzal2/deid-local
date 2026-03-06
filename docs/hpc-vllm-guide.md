@@ -6,9 +6,11 @@ connecting clients with `llm-local`.
 ## Prerequisites
 
 - Access to your HPC cluster's GPU partition and a project directory with enough space.
+- Use the RHEL9 GPU partition (`gpu-redhat`) for serve and validation jobs.
 - `uv` and SLURM commands (`sbatch`, `squeue`, `scancel`) available on the cluster.
 - Repository checked out on shared storage.
 - A repo-local virtual environment with dependencies installed.
+- Review [HPC GLIBC and Partition Compatibility Note](./hpc-glibc-partition-note.md).
 
 Bootstrap command:
 
@@ -52,6 +54,7 @@ export HF_TOKEN="<your-hf-token>"
 scripts/deployment/hpc/submit_vllm_serve.sh \
   --model "${SHARED_MODEL_DIR}" \
   --gpus 1 \
+  --partition gpu-redhat \
   --time 04:00:00 \
   --port 8000 \
   --endpoint-dir "${VLLM_ENDPOINT_DIR}" \
@@ -148,3 +151,7 @@ For multi-GPU serve, increase `--gpus` in `submit_vllm_serve.sh`; this also sets
   - reduce `--max-model-len`.
   - lower `VLLM_GPU_MEMORY_UTILIZATION`.
   - verify GPU type and available memory.
+- `GLIBC_x.y not found` import error on GPU node:
+  - compare login-node and compute-node glibc versions.
+  - submit to `gpu-redhat` to stay on the RHEL9 GPU partition.
+  - see [HPC GLIBC and Partition Compatibility Note](./hpc-glibc-partition-note.md).

@@ -4,6 +4,7 @@ import pytest
 
 HPC_SCRIPT_DIR = Path(__file__).resolve().parents[2] / "scripts" / "deployment" / "hpc"
 VLLM_SERVE_SCRIPT = HPC_SCRIPT_DIR / "vllm_serve.sbatch"
+SUBMIT_VLLM_SERVE_SCRIPT = HPC_SCRIPT_DIR / "submit_vllm_serve.sh"
 
 
 def _sbatch_files() -> list[Path]:
@@ -23,13 +24,19 @@ def test_vllm_serve_sbatch_has_required_hpc_directives() -> None:
     content = VLLM_SERVE_SCRIPT.read_text(encoding="utf-8")
 
     required_directives = [
-        "#SBATCH --partition=gpu",
+        "#SBATCH --partition=gpu-redhat",
         "#SBATCH --constraint='volta|adalovelace|ampere'",
         "#SBATCH --output=logs/%x_%N_%j.out",
         "#SBATCH --error=logs/%x_%N_%j.err",
     ]
     for directive in required_directives:
         assert directive in content, f"Missing required directive: {directive}"
+
+
+def test_submit_vllm_serve_defaults_to_gpu_redhat_partition() -> None:
+    content = SUBMIT_VLLM_SERVE_SCRIPT.read_text(encoding="utf-8")
+    assert 'PARTITION="${SLURM_PARTITION:-gpu-redhat}"' in content
+    assert "--partition)" in content
 
 
 @pytest.mark.parametrize(

@@ -13,6 +13,8 @@ Options:
                                meta-llama/Llama-3-8B-Instruct)
   --gpus <count>              GPU count and tensor parallel size (default: env
                                VLLM_TENSOR_PARALLEL or 1)
+  --partition <name>          SLURM partition (default: env SLURM_PARTITION or
+                               gpu-redhat)
   --time <HH:MM:SS>           SLURM walltime override
   --port <port>               Service port (default: env VLLM_PORT or 8000)
   --api-key <key>             API key passed to vLLM
@@ -46,6 +48,7 @@ SBATCH_SCRIPT="${SCRIPT_DIR}/vllm_serve.sbatch"
 
 MODEL="${VLLM_MODEL:-meta-llama/Llama-3-8B-Instruct}"
 GPUS="${VLLM_TENSOR_PARALLEL:-1}"
+PARTITION="${SLURM_PARTITION:-gpu-redhat}"
 TIME_OVERRIDE=""
 PORT="${VLLM_PORT:-8000}"
 API_KEY="${VLLM_API_KEY:-}"
@@ -60,6 +63,10 @@ while (($# > 0)); do
             ;;
         --gpus)
             GPUS="$2"
+            shift 2
+            ;;
+        --partition)
+            PARTITION="$2"
             shift 2
             ;;
         --time)
@@ -104,6 +111,9 @@ require_port "${PORT}"
 require_positive_integer "${MAX_MODEL_LEN}" "--max-model-len"
 
 SBATCH_ARGS=(--gres "gpu:${GPUS}")
+if [[ -n "${PARTITION}" ]]; then
+    SBATCH_ARGS+=(--partition "${PARTITION}")
+fi
 if [[ -n "${TIME_OVERRIDE}" ]]; then
     SBATCH_ARGS+=(--time "${TIME_OVERRIDE}")
 fi
@@ -124,6 +134,7 @@ echo "Submitting vLLM serve job:"
 echo "  script: ${SBATCH_SCRIPT}"
 echo "  model: ${VLLM_MODEL}"
 echo "  gpus/tensor-parallel: ${VLLM_TENSOR_PARALLEL}"
+echo "  partition: ${PARTITION}"
 echo "  port: ${VLLM_PORT}"
 echo "  max model len: ${VLLM_MAX_MODEL_LEN}"
 if [[ -n "${ENDPOINT_DIR}" ]]; then

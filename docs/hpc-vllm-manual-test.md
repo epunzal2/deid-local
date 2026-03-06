@@ -55,6 +55,7 @@ Relay back:
 scripts/deployment/hpc/submit_vllm_serve.sh \
   --model "${SHARED_MODEL_DIR}" \
   --gpus 1 \
+  --partition gpu-redhat \
   --time 04:00:00 \
   --port 8000 \
   --endpoint-dir "${VLLM_ENDPOINT_DIR}" \
