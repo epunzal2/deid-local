@@ -27,3 +27,6 @@ Current deployment wrappers:
 - `scripts/deployment/hpc/submit_llama_cpp_smoke.sh`
 - `scripts/deployment/hpc/submit_vllm_smoke.sh`
 - `scripts/deployment/hpc/submit_vllm_serve.sh`
+
+The HPC `verify_vllm_serve.sh` wrapper stores timestamped test logs under
+`verification/`.

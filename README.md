@@ -1,4 +1,4 @@
-# deid-local
+# llm-local
 
 Local-first Python scaffolding for LLM workflows that are developed on a MacBook and
 then promoted to a Linux HPC environment with GPU access.
@@ -21,7 +21,7 @@ uv pip install -r scratch/vllm-source/requirements/cpu.txt
 VLLM_TARGET_DEVICE=cpu uv pip install -e scratch/vllm-source
 uv run pre-commit install
 uv run pytest
-uv run deid-local doctor
+uv run llm-local doctor
 ```
 
 `uv sync` creates the repo-local `.venv/` automatically. When that environment was
@@ -37,7 +37,7 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 pre-commit install
 pytest
-deid-local doctor
+llm-local doctor
 ```
 
 ### Local macOS runtime stack
@@ -99,9 +99,9 @@ The default smoke-test model path is
 
 ```bash
 scripts/deployment/macos/setup_llama_cpp.sh
-uv run deid-local model fetch
-uv run deid-local llm health --provider llama_cpp
-uv run deid-local llm infer --provider llama_cpp --prompt "Reply with pong."
+uv run llm-local model fetch
+uv run llm-local llm health --provider llama_cpp
+uv run llm-local llm infer --provider llama_cpp --prompt "Reply with pong."
 scripts/deployment/macos/verify_llama_cpp_e2e.sh
 scripts/deployment/macos/run_chat_window.sh
 ```
@@ -109,14 +109,14 @@ scripts/deployment/macos/run_chat_window.sh
 ### Remote `vllm`
 
 ```bash
-export DEID_LLM_PROVIDER=vllm
-export DEID_VLLM_BASE_URL=http://127.0.0.1:8000
-export DEID_VLLM_MODEL=meta-llama/Llama-3-8B-Instruct
-export DEID_VLLM_HEALTH_URL=http://127.0.0.1:8000/health
+export LLM_PROVIDER=vllm
+export VLLM_BASE_URL=http://127.0.0.1:8000
+export VLLM_MODEL=meta-llama/Llama-3-8B-Instruct
+export VLLM_HEALTH_URL=http://127.0.0.1:8000/health
 
-uv run deid-local llm config
-uv run deid-local llm health
-uv run deid-local llm infer --prompt "Reply with pong."
+uv run llm-local llm config
+uv run llm-local llm health
+uv run llm-local llm infer --prompt "Reply with pong."
 ```
 
 ### Local macOS `vllm` CPU verification
@@ -126,7 +126,12 @@ huggingface-cli download facebook/opt-125m --local-dir ./models/llm/opt-125m --l
 scripts/deployment/macos/verify_vllm_e2e.sh
 ```
 
-More detail lives in [`docs/deployment.md`](./docs/deployment.md).
+For HPC multi-user serving, use:
+
+- [`docs/hpc-vllm-guide.md`](./docs/hpc-vllm-guide.md)
+- [`docs/hpc-vllm-manual-test.md`](./docs/hpc-vllm-manual-test.md)
+
+General deployment details live in [`docs/deployment.md`](./docs/deployment.md).
 
 ## Development workflow
 
@@ -152,10 +157,10 @@ repository template.
 uv run ruff check .
 uv run ruff format --check .
 uv run pytest
-uv run deid-local --help
-uv run deid-local doctor
-uv run deid-local llm config
-uv run deid-local model verify
+uv run llm-local --help
+uv run llm-local doctor
+uv run llm-local llm config
+uv run llm-local model verify
 ```
 
 ## Repository layout
@@ -165,7 +170,7 @@ uv run deid-local model verify
 docs/                 Project documentation
 examples/             Runnable examples
 scripts/              Thin wrappers around package code
-src/deid_local/       Application package
+src/llm_local/        Application package
 tests/                Unit and integration tests
 ```
 
