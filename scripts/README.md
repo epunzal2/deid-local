@@ -17,6 +17,7 @@ Current deployment wrappers:
 - `scripts/deployment/macos/verify_vllm_e2e.sh`
 - `scripts/deployment/macos/run_chat_window.sh`
 - `scripts/deployment/hpc/setup_env.sh`
+- `scripts/deployment/hpc/fetch_model.sh`
 - `scripts/deployment/hpc/llama_cpp_smoke.sbatch`
 - `scripts/deployment/hpc/vllm_smoke.sbatch`
 - `scripts/deployment/hpc/vllm_serve.sbatch`

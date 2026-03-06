@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from collections.abc import Sequence
 
@@ -16,7 +17,11 @@ from llm_local.core.llm_settings import (
     load_runtime_settings,
 )
 from llm_local.core.runtime import build_runtime_summary, format_runtime_summary
-from llm_local.utils.model_assets import download_model_asset, verify_model_asset
+from llm_local.utils.model_assets import (
+    download_hf_snapshot,
+    download_model_asset,
+    verify_model_asset,
+)
 
 
 def _run_doctor(_args: argparse.Namespace) -> int:
@@ -94,6 +99,22 @@ def _run_model_fetch(args: argparse.Namespace) -> int:
             repo_id=args.repo_id,
             filename=args.filename,
             output_dir=args.output_dir,
+        )
+    except RuntimeError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    print(model_path)
+    return 0
+
+
+def _run_model_fetch_hf(args: argparse.Namespace) -> int:
+    token = args.token or os.environ.get("HF_TOKEN") or None
+    try:
+        model_path = download_hf_snapshot(
+            repo_id=args.repo_id,
+            output_dir=args.output_dir,
+            token=token,
+            revision=args.revision,
         )
     except RuntimeError as exc:
         print(str(exc), file=sys.stderr)
@@ -220,6 +241,30 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory where the model should be stored.",
     )
     model_fetch_parser.set_defaults(handler=_run_model_fetch)
+
+    model_fetch_hf_parser = model_subparsers.add_parser(
+        "fetch-hf",
+        help="Download a full Hugging Face snapshot for vLLM serving.",
+    )
+    model_fetch_hf_parser.add_argument(
+        "--repo-id",
+        required=True,
+        help="Hugging Face repository ID to download.",
+    )
+    model_fetch_hf_parser.add_argument(
+        "--output-dir",
+        required=True,
+        help="Directory where the model snapshot should be stored.",
+    )
+    model_fetch_hf_parser.add_argument(
+        "--token",
+        help="Optional Hugging Face access token. Falls back to HF_TOKEN.",
+    )
+    model_fetch_hf_parser.add_argument(
+        "--revision",
+        help="Optional git revision, branch, or tag.",
+    )
+    model_fetch_hf_parser.set_defaults(handler=_run_model_fetch_hf)
 
     model_verify_parser = model_subparsers.add_parser(
         "verify",
