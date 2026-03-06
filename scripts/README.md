@@ -20,6 +20,7 @@ Current deployment wrappers:
 - `scripts/deployment/hpc/fetch_model.sh`
 - `scripts/deployment/hpc/check_vllm_status.sh`
 - `scripts/deployment/hpc/stop_vllm_serve.sh`
+- `scripts/deployment/hpc/verify_vllm_serve.sh`
 - `scripts/deployment/hpc/llama_cpp_smoke.sbatch`
 - `scripts/deployment/hpc/vllm_smoke.sbatch`
 - `scripts/deployment/hpc/vllm_serve.sbatch`
