@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from deid_local.cli import main
+from llm_local.cli import main
 
 
 def test_doctor_command_prints_runtime_summary(capsys) -> None:
@@ -9,7 +9,7 @@ def test_doctor_command_prints_runtime_summary(capsys) -> None:
     captured = capsys.readouterr()
 
     assert exit_code == 0
-    assert "deid-local doctor" in captured.out
+    assert "llm-local doctor" in captured.out
     assert "Execution target:" in captured.out
 
 
@@ -23,8 +23,8 @@ def test_main_without_subcommand_prints_help(capsys) -> None:
 
 
 def test_llm_config_redacts_api_key(monkeypatch, capsys) -> None:
-    monkeypatch.setenv("DEID_LLM_PROVIDER", "openai_http")
-    monkeypatch.setenv("DEID_OPENAI_API_KEY", "secret-token")
+    monkeypatch.setenv("LLM_PROVIDER", "openai_http")
+    monkeypatch.setenv("OPENAI_API_KEY", "secret-token")
 
     exit_code = main(["llm", "config"])
 

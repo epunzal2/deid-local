@@ -1,4 +1,4 @@
-from deid_local.core.chat_service import ChatSession
+from llm_local.core.chat_service import ChatSession
 
 
 def test_chat_session_formats_history_deterministically() -> None:

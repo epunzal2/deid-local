@@ -1,4 +1,4 @@
-"""Command-line entry points for deid-local."""
+"""Command-line entry points for llm-local."""
 
 from __future__ import annotations
 
@@ -7,16 +7,16 @@ import json
 import sys
 from collections.abc import Sequence
 
-from deid_local.adapters.llm import LLMRequest, build_provider
-from deid_local.core.chat_service import create_chat_app
-from deid_local.core.health import probe_provider_health
-from deid_local.core.llm_settings import (
+from llm_local.adapters.llm import LLMRequest, build_provider
+from llm_local.core.chat_service import create_chat_app
+from llm_local.core.health import probe_provider_health
+from llm_local.core.llm_settings import (
     DEFAULT_TEST_MODEL_PATH,
     LLMSettingsOverrides,
     load_runtime_settings,
 )
-from deid_local.core.runtime import build_runtime_summary, format_runtime_summary
-from deid_local.utils.model_assets import download_model_asset, verify_model_asset
+from llm_local.core.runtime import build_runtime_summary, format_runtime_summary
+from llm_local.utils.model_assets import download_model_asset, verify_model_asset
 
 
 def _run_doctor(_args: argparse.Namespace) -> int:
@@ -113,7 +113,7 @@ def _run_model_verify(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="deid-local",
+        prog="llm-local",
         description=(
             "Utilities for developing local-first LLM workflows that can later run on "
             "Linux HPC GPUs."

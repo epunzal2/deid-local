@@ -6,7 +6,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from deid_local.cli import main
+from llm_local.cli import main
 
 
 class _MockOpenAIHandler(BaseHTTPRequestHandler):

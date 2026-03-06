@@ -5,8 +5,8 @@ from pathlib import Path
 
 import requests
 
-from deid_local.core.health import probe_provider_health
-from deid_local.core.llm_settings import load_runtime_settings
+from llm_local.core.health import probe_provider_health
+from llm_local.core.llm_settings import load_runtime_settings
 
 
 class _FakeResponse:
@@ -30,8 +30,8 @@ class _FakeSession:
 def test_probe_provider_health_retries_until_success() -> None:
     settings = load_runtime_settings(
         {
-            "DEID_LLM_PROVIDER": "vllm",
-            "DEID_VLLM_HEALTH_URL": "http://127.0.0.1:8001/healthz",
+            "LLM_PROVIDER": "vllm",
+            "VLLM_HEALTH_URL": "http://127.0.0.1:8001/healthz",
         }
     )
     session = _FakeSession(

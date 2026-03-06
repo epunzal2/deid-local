@@ -1,4 +1,4 @@
-from deid_local.core.runtime import build_runtime_summary
+from llm_local.core.runtime import build_runtime_summary
 
 
 def test_build_runtime_summary_defaults_to_macos_local() -> None:

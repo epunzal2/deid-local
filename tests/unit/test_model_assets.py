@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from deid_local.utils import model_assets
+from llm_local.utils import model_assets
 
 
 def test_download_model_asset_uses_hugging_face_download_helper(

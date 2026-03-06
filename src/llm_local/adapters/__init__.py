@@ -1,3 +1,3 @@
 """Runtime-specific adapters live here."""
 
-"""Adapter entry points for deid-local."""
+"""Adapter entry points for llm-local."""
