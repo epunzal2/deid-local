@@ -4,7 +4,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: scripts/bootstrap_hpc.sh [--python PYTHON] [--venv-dir PATH] [--index-strategy STRATEGY] [--uv-cache-dir PATH] [--tmp-dir PATH] [--skip-llama-cpp] [--llama-cpp-cuda-arch ARCHES] [--help]
+Usage: scripts/bootstrap_hpc.sh [--python PYTHON] [--venv-dir PATH] [--python-platform PLATFORM] [--index-strategy STRATEGY] [--uv-cache-dir PATH] [--tmp-dir PATH] [--skip-llama-cpp] [--llama-cpp-cuda-arch ARCHES] [--help]
 
 Create a uv-managed virtual environment for Linux HPC use and install
 requirements-hpc.txt, then optionally install llama-cpp-python with CUDA enabled.
@@ -12,6 +12,8 @@ requirements-hpc.txt, then optionally install llama-cpp-python with CUDA enabled
 Options:
   --python PYTHON         Python version/interpreter for uv (default: 3.12.9)
   --venv-dir PATH         Virtual environment path (default: .venv)
+  --python-platform VALUE Target platform tag for uv resolution
+                          (default: x86_64-manylinux2014)
   --index-strategy VALUE  uv index strategy for requirements install
                           (default: unsafe-best-match)
   --uv-cache-dir PATH     uv cache directory (default: \$UV_CACHE_DIR or
@@ -28,6 +30,7 @@ EOF
 
 python_spec="3.12.9"
 venv_dir=".venv"
+python_platform="x86_64-manylinux2014"
 index_strategy="unsafe-best-match"
 uv_cache_dir=""
 tmp_dir=""
@@ -42,6 +45,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --venv-dir)
       venv_dir="${2:?missing value for --venv-dir}"
+      shift 2
+      ;;
+    --python-platform)
+      python_platform="${2:?missing value for --python-platform}"
       shift 2
       ;;
     --index-strategy)
@@ -123,6 +130,7 @@ fi
 
 uv pip install \
   --python "${venv_path}/bin/python" \
+  --python-platform "${python_platform}" \
   --index-strategy "${index_strategy}" \
   --only-binary vllm \
   -r "${repo_root}/requirements-hpc.txt"
@@ -158,6 +166,7 @@ fi
 
 cat <<EOF
 HPC environment bootstrapped in ${venv_path}
+Python platform used: ${python_platform}
 Index strategy used: ${index_strategy}
 UV cache dir: ${UV_CACHE_DIR}
 TMPDIR: ${TMPDIR}
