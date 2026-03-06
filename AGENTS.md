@@ -50,6 +50,8 @@ Environment conventions:
 - Keep `requirements-hpc.txt` as the curated Linux/NVIDIA HPC runtime install file.
 - Install `llama-cpp-python` separately from the requirement files when backend-specific
   build flags such as Metal or CUDA must be passed.
+- Install macOS `vllm` separately from source after the base Mac requirements are
+  installed, since Apple Silicon support is experimental and source-build only.
 - Keep machine-specific paths, scheduler options, and GPU settings in configuration or
   launch wrappers, not in core Python modules.
 
@@ -112,7 +114,8 @@ Rules:
   `python -m venv .venv && source .venv/bin/activate &&
   python -m pip install -r requirements-hpc.txt`
 - Use explicit bootstrap scripts when environment-specific post-install steps are
-  required, such as Metal or CUDA builds for `llama-cpp-python`.
+  required, such as Metal or CUDA builds for `llama-cpp-python` and source builds for
+  macOS `vllm`.
 
 ## 5) Package management
 

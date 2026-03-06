@@ -21,3 +21,5 @@ and this project aims to follow [Semantic Versioning](https://semver.org/).
   are applied correctly.
 - Added `scripts/bootstrap_hpc.sh` as the explicit HPC environment bootstrap helper.
 - Added `scripts/bootstrap_mac.sh` as the explicit macOS environment bootstrap helper.
+- Updated the macOS bootstrap flow to install experimental Apple Silicon `vllm` from
+  source and aligned `requirements-mac.txt` with the working package versions.

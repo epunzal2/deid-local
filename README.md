@@ -15,6 +15,9 @@ uv sync --managed-python --python 3.12.9 --extra dev
 uv pip install -r requirements-mac.txt
 CMAKE_ARGS="-DGGML_METAL=on" FORCE_CMAKE=1 \
   uv pip install --no-binary llama-cpp-python llama-cpp-python
+git clone https://github.com/vllm-project/vllm.git scratch/vllm-source
+uv pip install -r scratch/vllm-source/requirements/cpu.txt
+VLLM_TARGET_DEVICE=cpu uv pip install -e scratch/vllm-source
 uv run pre-commit install
 uv run pytest
 uv run deid-local doctor
@@ -45,6 +48,9 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements-mac.txt
 CMAKE_ARGS="-DGGML_METAL=on" FORCE_CMAKE=1 \
   python -m pip install --no-binary llama-cpp-python llama-cpp-python
+git clone https://github.com/vllm-project/vllm.git scratch/vllm-source
+python -m pip install -r scratch/vllm-source/requirements/cpu.txt
+VLLM_TARGET_DEVICE=cpu python -m pip install -e scratch/vllm-source
 ```
 
 If your current `.venv` was created by `uv`, use:
@@ -53,6 +59,9 @@ If your current `.venv` was created by `uv`, use:
 uv pip install -r requirements-mac.txt
 CMAKE_ARGS="-DGGML_METAL=on" FORCE_CMAKE=1 \
   uv pip install --no-binary llama-cpp-python llama-cpp-python
+git clone https://github.com/vllm-project/vllm.git scratch/vllm-source
+uv pip install -r scratch/vllm-source/requirements/cpu.txt
+VLLM_TARGET_DEVICE=cpu uv pip install -e scratch/vllm-source
 ```
 
 Or use the helper script:
@@ -91,8 +100,9 @@ setup command keeps `uv` from reusing a Conda interpreter from your shell.
 [`requirements.txt`](./requirements.txt) is the pip-compatible fallback generated from
 `uv.lock`. [`requirements-mac.txt`](./requirements-mac.txt) is the local macOS ML/LLM
 runtime stack. [`requirements-hpc.txt`](./requirements-hpc.txt) is the Linux/NVIDIA
-HPC runtime stack for cluster installs. `llama-cpp-python` is installed as a separate
-step so Metal or CUDA build flags can be applied correctly.
+HPC runtime stack for cluster installs. `llama-cpp-python` and macOS `vllm` are
+installed as separate steps so Metal and source-build settings can be applied
+correctly.
 
 Before larger or riskier changes, add a plan in [`./.plans/`](./.plans/) using the
 repository template.

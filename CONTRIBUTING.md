@@ -11,6 +11,9 @@ uv sync --managed-python --python 3.12.9 --extra dev
 uv pip install -r requirements-mac.txt
 CMAKE_ARGS="-DGGML_METAL=on" FORCE_CMAKE=1 \
   uv pip install --no-binary llama-cpp-python llama-cpp-python
+git clone https://github.com/vllm-project/vllm.git scratch/vllm-source
+uv pip install -r scratch/vllm-source/requirements/cpu.txt
+VLLM_TARGET_DEVICE=cpu uv pip install -e scratch/vllm-source
 uv run pre-commit install
 ```
 
@@ -36,6 +39,9 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements-mac.txt
 CMAKE_ARGS="-DGGML_METAL=on" FORCE_CMAKE=1 \
   python -m pip install --no-binary llama-cpp-python llama-cpp-python
+git clone https://github.com/vllm-project/vllm.git scratch/vllm-source
+python -m pip install -r scratch/vllm-source/requirements/cpu.txt
+VLLM_TARGET_DEVICE=cpu python -m pip install -e scratch/vllm-source
 ```
 
 ### HPC GPU install

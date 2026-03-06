@@ -5,34 +5,38 @@
 #   installed.
 # - PyTorch comes from the default PyPI index for macOS.
 # - llama.cpp is installed via llama-cpp-python with Metal enabled.
+# - vLLM is installed separately from source after this file is installed.
 
 -e .
 
 # Data science / analysis
-matplotlib
-numpy
-pandas
-pillow
-pyarrow
-scikit-learn
-scipy
-seaborn
-tqdm
+matplotlib==3.10.8
+numpy==2.2.6
+pandas==3.0.1
+pillow==12.1.1
+pyarrow==23.0.1
+scikit-learn==1.8.0
+scipy==1.17.1
+seaborn==0.13.2
+tqdm==4.67.3
 
 # Core ML / LLM runtime
-accelerate
-datasets
-einops
-evaluate
-huggingface-hub
+accelerate==1.13.0
+datasets==4.6.1
+einops==0.8.2
+evaluate==0.4.6
+huggingface-hub==0.36.2
 # Install llama-cpp-python separately so Metal build flags can be passed correctly.
-peft
-safetensors
-sentence-transformers
-sentencepiece
-tiktoken
-tokenizers
-torch
-torchaudio
-torchvision
-transformers
+mlx==0.31.0
+mlx-lm==0.29.1
+mlx-metal==0.31.0
+peft==0.18.1
+safetensors==0.7.0
+sentence-transformers==5.2.3
+sentencepiece==0.2.1
+tiktoken==0.12.0
+tokenizers==0.22.2
+torch==2.10.0
+torchaudio==2.10.0
+torchvision==0.25.0
+transformers==4.57.6
