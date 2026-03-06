@@ -13,6 +13,7 @@ import pytest
 import requests
 
 VLLM_TEST_MODEL_DIR = Path("models/llm/opt-125m")
+VLLM_TEST_CHAT_TEMPLATE = Path("tests/fixtures/vllm_chat_template.jinja")
 
 
 @pytest.mark.slow
@@ -26,11 +27,14 @@ def test_vllm_end_to_end_on_macos_cpu(tmp_path: Path) -> None:
 
     repo_root = Path(__file__).resolve().parents[2]
     model_dir = repo_root / VLLM_TEST_MODEL_DIR
+    chat_template_path = repo_root / VLLM_TEST_CHAT_TEMPLATE
     if not (model_dir / "config.json").is_file():
         pytest.skip(
             "Expected a local Hugging Face model snapshot at ./models/llm/opt-125m "
             "for the vLLM E2E test"
         )
+    if not chat_template_path.is_file():
+        pytest.skip("Expected the test chat template fixture to exist")
 
     vllm_bin = shutil.which("vllm")
     if vllm_bin is None:
@@ -48,12 +52,14 @@ def test_vllm_end_to_end_on_macos_cpu(tmp_path: Path) -> None:
         "127.0.0.1",
         "--port",
         str(port),
-        "--device",
-        "cpu",
         "--dtype",
         "float16",
         "--max-model-len",
         "512",
+        "--chat-template",
+        str(chat_template_path),
+        "--chat-template-content-format",
+        "string",
         "--served-model-name",
         "deid-local-vllm-test",
     ]

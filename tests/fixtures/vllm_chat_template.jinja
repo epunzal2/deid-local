@@ -1,0 +1,10 @@
+{%- for message in messages %}
+{{ message['role'] | capitalize }}: {{ message['content'] }}
+{%- if not loop.last %}
+
+{%- endif %}
+{%- endfor %}
+{%- if add_generation_prompt %}
+
+Assistant:
+{%- endif %}
