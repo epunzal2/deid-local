@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from deid_local.adapters.llm.base import LLMProvider
-from deid_local.adapters.llm.llama_cpp import LlamaCppProvider
-from deid_local.adapters.llm.openai_http import OpenAICompatibleProvider, VLLMProvider
-from deid_local.core.llm_settings import LLMRuntimeSettings
+from llm_local.adapters.llm.base import LLMProvider
+from llm_local.adapters.llm.llama_cpp import LlamaCppProvider
+from llm_local.adapters.llm.openai_http import OpenAICompatibleProvider, VLLMProvider
+from llm_local.core.llm_settings import LLMRuntimeSettings
 
 
 def build_provider(settings: LLMRuntimeSettings) -> LLMProvider:

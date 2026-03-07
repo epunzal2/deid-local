@@ -80,39 +80,37 @@ def load_runtime_settings(
     *,
     overrides: LLMSettingsOverrides | None = None,
 ) -> LLMRuntimeSettings:
-    """Resolve settings using CLI overrides, `DEID_*` vars, then legacy aliases."""
+    """Resolve settings using CLI overrides, env vars, then defaults."""
 
     env = environ if environ is not None else os.environ
     runtime_overrides = overrides or LLMSettingsOverrides()
     provider_name = _normalize_provider_name(
-        runtime_overrides.provider_name
-        or _first_value(env, "DEID_LLM_PROVIDER", "LLM_PROVIDER")
-        or "llama_cpp"
+        runtime_overrides.provider_name or _first_value(env, "LLM_PROVIDER") or "llama_cpp"
     )
     timeout_seconds = _coerce_float(
         runtime_overrides.timeout_seconds,
-        _first_value(env, "DEID_LLM_TIMEOUT_S"),
+        _first_value(env, "LLM_TIMEOUT_S"),
         default=30.0,
     )
     max_retries = _coerce_int(
         runtime_overrides.max_retries,
-        _first_value(env, "DEID_LLM_MAX_RETRIES"),
+        _first_value(env, "LLM_MAX_RETRIES"),
         default=3,
     )
     max_tokens = _optional_int(
         runtime_overrides.max_tokens,
-        _first_value(env, "DEID_LLM_MAX_TOKENS"),
+        _first_value(env, "LLM_MAX_TOKENS"),
     )
     temperature = _optional_float(
         runtime_overrides.temperature,
-        _first_value(env, "DEID_LLM_TEMPERATURE"),
+        _first_value(env, "LLM_TEMPERATURE"),
     )
 
     if provider_name == "llama_cpp":
         model_path = Path(
             str(
                 runtime_overrides.model_path
-                or _first_value(env, "DEID_LLAMA_MODEL_PATH", "LLAMA_CPP_MODEL_PATH")
+                or _first_value(env, "LLAMA_MODEL_PATH")
                 or DEFAULT_TEST_MODEL_PATH
             )
         )
@@ -129,39 +127,37 @@ def load_runtime_settings(
             temperature=temperature,
             llama_ctx=_coerce_int(
                 runtime_overrides.llama_ctx,
-                _first_value(env, "DEID_LLAMA_CTX"),
+                _first_value(env, "LLAMA_CTX"),
                 default=4096,
             ),
             llama_gpu_layers=_coerce_int(
                 runtime_overrides.llama_gpu_layers,
-                _first_value(env, "DEID_LLAMA_GPU_LAYERS"),
+                _first_value(env, "LLAMA_GPU_LAYERS"),
                 default=-1,
             ),
             llama_chat_format=runtime_overrides.llama_chat_format
-            or _first_value(env, "DEID_LLAMA_CHAT_FORMAT"),
+            or _first_value(env, "LLAMA_CHAT_FORMAT"),
         )
 
     if provider_name == "openai_http":
         base_url = (
             runtime_overrides.base_url
-            or _first_value(env, "DEID_OPENAI_BASE_URL")
+            or _first_value(env, "OPENAI_BASE_URL")
             or DEFAULT_OPENAI_BASE_URL
         )
         health_url = (
             runtime_overrides.health_url
-            or _first_value(env, "DEID_OPENAI_HEALTH_URL")
+            or _first_value(env, "OPENAI_HEALTH_URL")
             or f"{base_url.rstrip('/')}/v1/models"
         )
         return LLMRuntimeSettings(
             provider_name=provider_name,
             model=(
-                runtime_overrides.model
-                or _first_value(env, "DEID_OPENAI_MODEL")
-                or DEFAULT_OPENAI_MODEL
+                runtime_overrides.model or _first_value(env, "OPENAI_MODEL") or DEFAULT_OPENAI_MODEL
             ),
             model_path=None,
             base_url=base_url,
-            api_key=runtime_overrides.api_key or _first_value(env, "DEID_OPENAI_API_KEY"),
+            api_key=runtime_overrides.api_key or _first_value(env, "OPENAI_API_KEY"),
             health_url=health_url,
             timeout_seconds=timeout_seconds,
             max_retries=max_retries,
@@ -173,34 +169,21 @@ def load_runtime_settings(
         )
 
     base_url = (
-        runtime_overrides.base_url
-        or _first_value(
-            env,
-            "DEID_VLLM_BASE_URL",
-            "VLLM_BASE_URL",
-        )
-        or DEFAULT_VLLM_BASE_URL
+        runtime_overrides.base_url or _first_value(env, "VLLM_BASE_URL") or DEFAULT_VLLM_BASE_URL
     )
-    health_url = runtime_overrides.health_url or _first_value(
-        env,
-        "DEID_VLLM_HEALTH_URL",
-    )
+    health_url = runtime_overrides.health_url or _first_value(env, "VLLM_HEALTH_URL")
     if health_url is None:
-        legacy_health_port = _first_value(env, "VLLM_HEALTH_PORT")
-        if legacy_health_port is not None:
-            health_url = f"http://127.0.0.1:{legacy_health_port}/healthz"
-        else:
-            health_url = DEFAULT_VLLM_HEALTH_URL
+        health_url = DEFAULT_VLLM_HEALTH_URL
     return LLMRuntimeSettings(
         provider_name="vllm",
         model=(
             runtime_overrides.model
-            or _first_value(env, "DEID_VLLM_MODEL", "VLLM_MODEL")
+            or _first_value(env, "VLLM_MODEL_PATH", "VLLM_MODEL")
             or DEFAULT_VLLM_MODEL
         ),
         model_path=None,
         base_url=base_url,
-        api_key=runtime_overrides.api_key or _first_value(env, "DEID_VLLM_API_KEY", "VLLM_API_KEY"),
+        api_key=runtime_overrides.api_key or _first_value(env, "VLLM_API_KEY"),
         health_url=health_url,
         timeout_seconds=timeout_seconds,
         max_retries=max_retries,

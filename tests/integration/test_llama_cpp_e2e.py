@@ -8,15 +8,15 @@ from pathlib import Path
 
 import pytest
 
-from deid_local.core.llm_settings import DEFAULT_TEST_MODEL_PATH
+from llm_local.core.llm_settings import DEFAULT_TEST_MODEL_PATH
 
 
 @pytest.mark.slow
 def test_llama_cpp_end_to_end_on_macos() -> None:
     if sys.platform != "darwin":
         pytest.skip("macOS-only end-to-end verification test")
-    if os.environ.get("DEID_RUN_LLAMA_CPP_E2E") != "1":
-        pytest.skip("Set DEID_RUN_LLAMA_CPP_E2E=1 to run the real llama.cpp verification test")
+    if os.environ.get("RUN_LLAMA_CPP_E2E") != "1":
+        pytest.skip("Set RUN_LLAMA_CPP_E2E=1 to run the real llama.cpp verification test")
     if importlib.util.find_spec("llama_cpp") is None:
         pytest.skip("llama-cpp-python is not installed in the active environment")
 
@@ -27,13 +27,13 @@ def test_llama_cpp_end_to_end_on_macos() -> None:
 
     env = os.environ.copy()
     env["PYTHONPATH"] = str(repo_root / "src")
-    env["DEID_LLAMA_MODEL_PATH"] = str(model_path)
+    env["LLAMA_MODEL_PATH"] = str(model_path)
 
     health_result = subprocess.run(
         [
             sys.executable,
             "-m",
-            "deid_local",
+            "llm_local",
             "llm",
             "health",
             "--provider",
@@ -51,7 +51,7 @@ def test_llama_cpp_end_to_end_on_macos() -> None:
         [
             sys.executable,
             "-m",
-            "deid_local",
+            "llm_local",
             "llm",
             "infer",
             "--provider",

@@ -9,7 +9,7 @@ from pathlib import Path
 
 import requests
 
-from deid_local.core.llm_settings import LLMRuntimeSettings
+from llm_local.core.llm_settings import LLMRuntimeSettings
 
 
 @dataclass(frozen=True, slots=True)
