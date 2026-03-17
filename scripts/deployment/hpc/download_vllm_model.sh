@@ -12,7 +12,7 @@ nodes where long downloads are more reliable than compute nodes.
 Options:
   --repo-id <repo>         Hugging Face repository ID
                            (default: env VLLM_MODEL_REPO or REPO_ID or
-                           meta-llama/Llama-3-8B-Instruct)
+                           meta-llama/Llama-3.1-8B-Instruct)
   --output-dir <path>      Destination directory on shared storage
                            (default: env SHARED_MODEL_DIR)
   --token <token>          Hugging Face token (default: HF_TOKEN env var)
@@ -22,20 +22,20 @@ Options:
 Examples:
   # Minimal explicit usage
   scripts/deployment/hpc/download_vllm_model.sh \
-    --repo-id meta-llama/Llama-3-8B-Instruct \
-    --output-dir /shared/<group>/models/Llama-3-8B-Instruct
+    --repo-id meta-llama/Llama-3.1-8B-Instruct \
+    --output-dir /shared/<group>/models/Llama-3.1-8B-Instruct
 
   # Environment-driven usage (login/data-transfer node)
   export PROJECT_ROOT="$(pwd)"
-  export SHARED_MODEL_DIR="${PROJECT_ROOT}/models/llm/Llama-3-8B-Instruct"
-  export REPO_ID="meta-llama/Llama-3-8B-Instruct"
+  export SHARED_MODEL_DIR="${PROJECT_ROOT}/models/llm/Llama-3.1-8B-Instruct"
+  export REPO_ID="meta-llama/Llama-3.1-8B-Instruct"
   scripts/deployment/hpc/download_vllm_model.sh --repo-id "${REPO_ID}" \
     --output-dir "${SHARED_MODEL_DIR}"
 
   # With Hugging Face token and specific revision
   export HF_TOKEN="<your-hf-token>"
   scripts/deployment/hpc/download_vllm_model.sh \
-    --repo-id meta-llama/Llama-3-8B-Instruct \
+    --repo-id meta-llama/Llama-3.1-8B-Instruct \
     --output-dir "${SHARED_MODEL_DIR}" \
     --revision main
 USAGE
@@ -44,7 +44,7 @@ USAGE
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 FETCH_SCRIPT="${SCRIPT_DIR}/fetch_model.sh"
 
-REPO_ID="${VLLM_MODEL_REPO:-${REPO_ID:-meta-llama/Llama-3-8B-Instruct}}"
+REPO_ID="${VLLM_MODEL_REPO:-${REPO_ID:-meta-llama/Llama-3.1-8B-Instruct}}"
 OUTPUT_DIR="${SHARED_MODEL_DIR:-}"
 TOKEN="${HF_TOKEN:-}"
 REVISION=""

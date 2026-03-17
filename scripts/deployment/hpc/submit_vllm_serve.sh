@@ -10,7 +10,7 @@ Submit a vLLM serving SLURM job.
 
 Options:
   --model <model-id-or-path>  Model to serve (default: env VLLM_MODEL or
-                               meta-llama/Llama-3-8B-Instruct)
+                               meta-llama/Llama-3.1-8B-Instruct)
   --gpus <count>              GPU count and tensor parallel size (default: env
                                VLLM_TENSOR_PARALLEL or 1)
   --partition <name>          SLURM partition (default: env SLURM_PARTITION or
@@ -46,7 +46,7 @@ require_port() {
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 SBATCH_SCRIPT="${SCRIPT_DIR}/vllm_serve.sbatch"
 
-MODEL="${VLLM_MODEL:-meta-llama/Llama-3-8B-Instruct}"
+MODEL="${VLLM_MODEL:-meta-llama/Llama-3.1-8B-Instruct}"
 GPUS="${VLLM_TENSOR_PARALLEL:-1}"
 PARTITION="${SLURM_PARTITION:-gpu-redhat}"
 TIME_OVERRIDE=""

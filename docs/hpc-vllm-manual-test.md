@@ -9,7 +9,7 @@ Fill these once before running commands:
 
 ```bash
 export PROJECT_ROOT="$(pwd)"
-export SHARED_MODEL_DIR="${PROJECT_ROOT}/models/llm/Llama-3-8B-Instruct"
+export SHARED_MODEL_DIR="${PROJECT_ROOT}/models/llm/Llama-3.1-8B-Instruct"
 export VLLM_ENDPOINT_DIR="${PROJECT_ROOT}/models/llm/vllm-endpoints"
 export VLLM_API_KEY="$(openssl rand -hex 32)"
 mkdir -p "${SHARED_MODEL_DIR}" "${VLLM_ENDPOINT_DIR}"
@@ -37,7 +37,7 @@ Run this step on a login/data-transfer node:
 
 ```bash
 scripts/deployment/hpc/download_vllm_model.sh \
-  --repo-id meta-llama/Llama-3-8B-Instruct \
+  --repo-id meta-llama/Llama-3.1-8B-Instruct \
   --output-dir "${SHARED_MODEL_DIR}"
 ```
 

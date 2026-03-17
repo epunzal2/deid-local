@@ -111,7 +111,7 @@ scripts/deployment/macos/run_chat_window.sh
 ```bash
 export LLM_PROVIDER=vllm
 export VLLM_BASE_URL=http://127.0.0.1:8000
-export VLLM_MODEL=meta-llama/Llama-3-8B-Instruct
+export VLLM_MODEL=meta-llama/Llama-3.1-8B-Instruct
 export VLLM_HEALTH_URL=http://127.0.0.1:8000/health
 
 uv run llm-local llm config

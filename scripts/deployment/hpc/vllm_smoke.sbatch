@@ -11,7 +11,7 @@ set -euo pipefail
 PROJECT_ROOT="${PROJECT_ROOT:-${SLURM_SUBMIT_DIR:-$PWD}}"
 BASE_URL="${VLLM_BASE_URL:-http://127.0.0.1:8000}"
 HEALTH_URL="${VLLM_HEALTH_URL:-http://127.0.0.1:8000/health}"
-MODEL="${VLLM_MODEL:-meta-llama/Llama-3-8B-Instruct}"
+MODEL="${VLLM_MODEL:-meta-llama/Llama-3.1-8B-Instruct}"
 PROMPT="${SMOKE_PROMPT:-Reply with pong.}"
 
 cd "${PROJECT_ROOT}"

@@ -27,7 +27,7 @@ Pick paths that all users can read:
 
 ```bash
 export PROJECT_ROOT="$(pwd)"
-export SHARED_MODEL_DIR="${PROJECT_ROOT}/models/llm/Llama-3-8B-Instruct"
+export SHARED_MODEL_DIR="${PROJECT_ROOT}/models/llm/Llama-3.1-8B-Instruct"
 export VLLM_ENDPOINT_DIR="${PROJECT_ROOT}/models/llm/vllm-endpoints"
 mkdir -p "${SHARED_MODEL_DIR}" "${VLLM_ENDPOINT_DIR}"
 ```
@@ -41,7 +41,7 @@ Run this on a login/data-transfer node:
 
 ```bash
 scripts/deployment/hpc/download_vllm_model.sh \
-  --repo-id meta-llama/Llama-3-8B-Instruct \
+  --repo-id meta-llama/Llama-3.1-8B-Instruct \
   --output-dir "${SHARED_MODEL_DIR}"
 ```
 
@@ -49,6 +49,13 @@ If auth is required:
 
 ```bash
 export HF_TOKEN="<your-hf-token>"
+```
+
+To avoid writing to `~/.cache` on the login node, redirect the Hugging Face cache to
+scratch:
+
+```bash
+export HF_HOME=/scratch/$USER/.cache/huggingface
 ```
 
 ### 3. Launch vLLM service
@@ -115,7 +122,7 @@ scripts/deployment/hpc/stop_vllm_serve.sh --endpoint-dir "${VLLM_ENDPOINT_DIR}"
 | `LLM_PROVIDER` | Default provider selection | `llama_cpp` |
 | `VLLM_BASE_URL` | vLLM HTTP base URL | `http://127.0.0.1:8000` |
 | `VLLM_HEALTH_URL` | vLLM health endpoint | `http://127.0.0.1:8000/health` |
-| `VLLM_MODEL` | Model ID or model path for HTTP requests | `meta-llama/Llama-3-8B-Instruct` |
+| `VLLM_MODEL` | Model ID or model path for HTTP requests | `meta-llama/Llama-3.1-8B-Instruct` |
 | `VLLM_API_KEY` | Bearer token for vLLM OpenAI-compatible API | unset |
 | `VLLM_ENDPOINT_DIR` | Shared endpoint metadata directory | unset |
 | `VLLM_PORT` | vLLM service port | `8000` |
@@ -127,12 +134,13 @@ scripts/deployment/hpc/stop_vllm_serve.sh --endpoint-dir "${VLLM_ENDPOINT_DIR}"
 | `VLLM_HEALTH_TIMEOUT` | Startup health timeout (seconds) | `300` |
 | `VLLM_EXTRA_ARGS` | Additional `vllm serve` args | unset |
 | `CUDA_MODULE` | CUDA module loaded by `vllm_serve.sbatch` | `cuda/12.1` |
+| `HF_HOME` | Hugging Face cache directory (avoids `~/.cache`) | `~/.cache/huggingface` |
 | `HF_TOKEN` | Hugging Face token used by `fetch-hf` | unset |
 
 ## GPU-Specific Notes
 
 - A100 40G: typically works with `--gpus 1` and default model length.
-- L40S 40G: similar tuning to A100 for Llama 3 8B.
+- L40S 40G: similar tuning to A100 for Llama 3.1 8B.
 - V100 32G: may need lower context window:
   - add `--max-model-len 2048` when submitting.
   - optionally lower `VLLM_GPU_MEMORY_UTILIZATION` to reduce OOM risk.

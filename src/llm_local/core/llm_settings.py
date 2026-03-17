@@ -12,7 +12,7 @@ ProviderName = Literal["llama_cpp", "openai_http", "vllm"]
 
 DEFAULT_TEST_MODEL_PATH = Path("models/llm/Phi-3-mini-4k-instruct-q4.gguf")
 DEFAULT_VLLM_BASE_URL = "http://127.0.0.1:8000"
-DEFAULT_VLLM_MODEL = "meta-llama/Llama-3-8B-Instruct"
+DEFAULT_VLLM_MODEL = "meta-llama/Llama-3.1-8B-Instruct"
 DEFAULT_VLLM_HEALTH_URL = "http://127.0.0.1:8000/health"
 DEFAULT_OPENAI_BASE_URL = "http://127.0.0.1:8000"
 DEFAULT_OPENAI_MODEL = "model"

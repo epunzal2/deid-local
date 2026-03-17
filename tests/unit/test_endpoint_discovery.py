@@ -13,7 +13,7 @@ def test_write_and_read_endpoint_round_trip(tmp_path: Path) -> None:
     expected = EndpointInfo(
         base_url="http://node.example.org:8000",
         health_url="http://node.example.org:8000/health",
-        model="meta-llama/Llama-3-8B-Instruct",
+        model="meta-llama/Llama-3.1-8B-Instruct",
         node="node.example.org",
         port=8000,
         slurm_job_id="12345",

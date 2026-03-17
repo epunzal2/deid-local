@@ -35,7 +35,7 @@ def test_build_server_status_reports_healthy_with_model_and_slurm_state() -> Non
     endpoint = EndpointInfo(
         base_url="http://node01.example.edu:8000",
         health_url="http://node01.example.edu:8000/health",
-        model="meta-llama/Llama-3-8B-Instruct",
+        model="meta-llama/Llama-3.1-8B-Instruct",
         node="node01.example.edu",
         port=8000,
         slurm_job_id="43210",
@@ -47,7 +47,7 @@ def test_build_server_status_reports_healthy_with_model_and_slurm_state() -> Non
             endpoint.health_url: _FakeResponse(200, {"status": "ok"}),
             f"{endpoint.base_url}/v1/models": _FakeResponse(
                 200,
-                {"data": [{"id": "meta-llama/Llama-3-8B-Instruct"}]},
+                {"data": [{"id": "meta-llama/Llama-3.1-8B-Instruct"}]},
             ),
         }
     )
@@ -70,21 +70,21 @@ def test_build_server_status_reports_healthy_with_model_and_slurm_state() -> Non
     assert status.healthy is True
     assert status.http_status_code == 200
     assert status.slurm_state == "RUNNING"
-    assert status.model_info == {"data": [{"id": "meta-llama/Llama-3-8B-Instruct"}]}
+    assert status.model_info == {"data": [{"id": "meta-llama/Llama-3.1-8B-Instruct"}]}
     assert status.error is None
     assert session.calls[0][1]["Authorization"] == "Bearer shared-token"
 
     rendered = format_server_status(status)
     assert "Health: healthy" in rendered
     assert "SLURM state: RUNNING" in rendered
-    assert "Served models: meta-llama/Llama-3-8B-Instruct" in rendered
+    assert "Served models: meta-llama/Llama-3.1-8B-Instruct" in rendered
 
 
 def test_build_server_status_handles_unhealthy_and_missing_squeue() -> None:
     endpoint = EndpointInfo(
         base_url="http://node02.example.edu:8000",
         health_url="http://node02.example.edu:8000/health",
-        model="meta-llama/Llama-3-8B-Instruct",
+        model="meta-llama/Llama-3.1-8B-Instruct",
         node="node02.example.edu",
         port=8000,
         slurm_job_id="99999",

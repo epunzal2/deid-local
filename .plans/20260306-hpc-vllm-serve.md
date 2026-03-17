@@ -11,7 +11,7 @@ The project has a working **client-side** LLM substrate (provider adapters, CLI,
 checks, smoke-test SLURM scripts) but cannot launch or manage a vLLM server. The goal is
 a persistent, multi-user vLLM inference service on HPC (target GPUs: 4x A100 40G,
 2x V100 32G, 4x L40S 40G) that any researcher can discover and use. Initial model:
-`meta-llama/Llama-3-8B-Instruct`.
+`meta-llama/Llama-3.1-8B-Instruct`.
 
 The user runs all HPC scripts manually and relays outputs. CUDA requires `module load`
 (default: `cuda/12.1`). Endpoint discovery uses a shared group directory via env var.
@@ -291,7 +291,7 @@ check, clean shutdown.
 4. **Single shared API key** — vLLM's `--api-key` flag. Per-user keys possible later
    via `VLLM_EXTRA_ARGS="--allowed-api-keys k1,k2"`.
 5. **GPU flexibility** — Tensor parallelism and memory utilization are configurable.
-   A100 40G fits Llama-3-8B on 1 GPU; V100 32G may need `--max-model-len 2048`;
+   A100 40G fits Llama-3.1-8B on 1 GPU; V100 32G may need `--max-model-len 2048`;
    L40S 40G works like A100.
 6. **Generic naming** — No `DEID_` prefix anywhere. Package path flattened from
    `src/deid_local/` to `src/`. Infra is reusable across research applications.

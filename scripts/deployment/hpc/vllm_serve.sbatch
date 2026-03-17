@@ -15,7 +15,7 @@ set -euo pipefail
 
 # --- Configurable parameters (all env-var driven, no hard-coded paths) ---
 PROJECT_ROOT="${PROJECT_ROOT:-${SLURM_SUBMIT_DIR:-$PWD}}"
-VLLM_MODEL="${VLLM_MODEL:-meta-llama/Llama-3-8B-Instruct}"
+VLLM_MODEL="${VLLM_MODEL:-meta-llama/Llama-3.1-8B-Instruct}"
 VLLM_PORT="${VLLM_PORT:-8000}"
 VLLM_HOST="${VLLM_HOST:-0.0.0.0}"
 VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-4096}"
