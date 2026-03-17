@@ -6,7 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-from deid_local.adapters.llm.base import LLMProvider, LLMRequest
+from llm_local.adapters.llm.base import LLMProvider, LLMRequest
 
 
 @dataclass(frozen=True, slots=True)
@@ -114,7 +114,7 @@ _CHAT_TEMPLATE = """
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>deid-local Chat</title>
+    <title>llm-local Chat</title>
     <style>
       body {
         font-family: monospace;
@@ -144,7 +144,7 @@ _CHAT_TEMPLATE = """
     </style>
   </head>
   <body>
-    <h1>deid-local Chat</h1>
+    <h1>llm-local Chat</h1>
     <div id="chatbox"></div>
     <div class="controls">
       <input id="userInput" type="text" placeholder="Type your message">

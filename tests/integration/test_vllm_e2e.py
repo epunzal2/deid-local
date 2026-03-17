@@ -20,8 +20,8 @@ VLLM_TEST_CHAT_TEMPLATE = Path("tests/fixtures/vllm_chat_template.jinja")
 def test_vllm_end_to_end_on_macos_cpu(tmp_path: Path) -> None:
     if sys.platform != "darwin":
         pytest.skip("macOS-only vLLM end-to-end verification test")
-    if os.environ.get("DEID_RUN_VLLM_E2E") != "1":
-        pytest.skip("Set DEID_RUN_VLLM_E2E=1 to run the real vLLM verification test")
+    if os.environ.get("RUN_VLLM_E2E") != "1":
+        pytest.skip("Set RUN_VLLM_E2E=1 to run the real vLLM verification test")
     if importlib.util.find_spec("vllm") is None:
         pytest.skip("vllm is not installed in the active environment")
 
@@ -61,7 +61,7 @@ def test_vllm_end_to_end_on_macos_cpu(tmp_path: Path) -> None:
         "--chat-template-content-format",
         "string",
         "--served-model-name",
-        "deid-local-vllm-test",
+        "llm-local-vllm-test",
     ]
 
     with server_log.open("w", encoding="utf-8") as log_handle:
@@ -78,7 +78,7 @@ def test_vllm_end_to_end_on_macos_cpu(tmp_path: Path) -> None:
                 [
                     sys.executable,
                     "-m",
-                    "deid_local",
+                    "llm_local",
                     "llm",
                     "health",
                     "--provider",
@@ -88,7 +88,7 @@ def test_vllm_end_to_end_on_macos_cpu(tmp_path: Path) -> None:
                     "--health-url",
                     health_url,
                     "--model",
-                    "deid-local-vllm-test",
+                    "llm-local-vllm-test",
                     "--wait-seconds",
                     "5",
                     "--interval-seconds",
@@ -101,7 +101,7 @@ def test_vllm_end_to_end_on_macos_cpu(tmp_path: Path) -> None:
                 [
                     sys.executable,
                     "-m",
-                    "deid_local",
+                    "llm_local",
                     "llm",
                     "infer",
                     "--provider",
@@ -111,7 +111,7 @@ def test_vllm_end_to_end_on_macos_cpu(tmp_path: Path) -> None:
                     "--health-url",
                     health_url,
                     "--model",
-                    "deid-local-vllm-test",
+                    "llm-local-vllm-test",
                     "--max-tokens",
                     "16",
                     "--temperature",

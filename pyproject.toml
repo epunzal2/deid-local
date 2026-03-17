@@ -3,7 +3,7 @@ requires = ["hatchling>=1.27.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "deid-local"
+name = "llm-local"
 version = "0.1.0"
 description = "Local-first Python scaffolding for LLM workflows that move from macOS development to Linux HPC GPUs."
 readme = "README.md"
@@ -33,7 +33,7 @@ chat = [
 ]
 
 [project.scripts]
-deid-local = "deid_local.cli:main"
+llm-local = "llm_local.cli:main"
 
 [tool.pytest.ini_options]
 addopts = "-ra"

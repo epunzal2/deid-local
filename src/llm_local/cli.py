@@ -1,22 +1,31 @@
-"""Command-line entry points for deid-local."""
+"""Command-line entry points for llm-local."""
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
+import shlex
 import sys
 from collections.abc import Sequence
+from pathlib import Path
 
-from deid_local.adapters.llm import LLMRequest, build_provider
-from deid_local.core.chat_service import create_chat_app
-from deid_local.core.health import probe_provider_health
-from deid_local.core.llm_settings import (
+from llm_local.adapters.llm import LLMRequest, build_provider
+from llm_local.core.chat_service import create_chat_app
+from llm_local.core.endpoint_discovery import EndpointInfo, read_endpoint, resolve_endpoint_dir
+from llm_local.core.health import probe_provider_health
+from llm_local.core.llm_settings import (
     DEFAULT_TEST_MODEL_PATH,
     LLMSettingsOverrides,
     load_runtime_settings,
 )
-from deid_local.core.runtime import build_runtime_summary, format_runtime_summary
-from deid_local.utils.model_assets import download_model_asset, verify_model_asset
+from llm_local.core.runtime import build_runtime_summary, format_runtime_summary
+from llm_local.core.server_status import build_server_status, format_server_status
+from llm_local.utils.model_assets import (
+    download_hf_snapshot,
+    download_model_asset,
+    verify_model_asset,
+)
 
 
 def _run_doctor(_args: argparse.Namespace) -> int:
@@ -88,12 +97,86 @@ def _run_llm_chat(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_llm_connect(args: argparse.Namespace) -> int:
+    resolved = _resolve_endpoint(args)
+    if resolved is None:
+        return 1
+    endpoint_dir, endpoint = resolved
+
+    base_url = args.base_url or endpoint.base_url
+    health_url = args.health_url or endpoint.health_url
+    model = args.model or endpoint.model
+    api_key = args.api_key
+
+    print(f"export LLM_PROVIDER={shlex.quote('vllm')}")
+    print(f"export VLLM_ENDPOINT_DIR={shlex.quote(str(endpoint_dir))}")
+    print(f"export VLLM_BASE_URL={shlex.quote(base_url)}")
+    print(f"export VLLM_HEALTH_URL={shlex.quote(health_url)}")
+    print(f"export VLLM_MODEL={shlex.quote(model)}")
+    if api_key:
+        print(f"export VLLM_API_KEY={shlex.quote(api_key)}")
+    elif endpoint.api_key_required:
+        print(
+            "# Endpoint requires authentication; set VLLM_API_KEY before health/infer.",
+            file=sys.stderr,
+        )
+
+    if not args.test:
+        return 0
+
+    settings = load_runtime_settings(
+        overrides=LLMSettingsOverrides(
+            provider_name="vllm",
+            base_url=base_url,
+            model=model,
+            api_key=api_key,
+            health_url=health_url,
+        )
+    )
+    result = probe_provider_health(
+        settings,
+        wait_seconds=args.wait_seconds,
+        interval_seconds=args.interval_seconds,
+    )
+    output = sys.stdout if result.ok else sys.stderr
+    print(result.message, file=output)
+    return 0 if result.ok else 1
+
+
+def _run_llm_status(args: argparse.Namespace) -> int:
+    resolved = _resolve_endpoint(args)
+    if resolved is None:
+        return 1
+    _endpoint_dir, endpoint = resolved
+
+    api_key = args.api_key or os.environ.get("VLLM_API_KEY")
+    status = build_server_status(endpoint, api_key=api_key)
+    print(format_server_status(status))
+    return 0 if status.healthy else 1
+
+
 def _run_model_fetch(args: argparse.Namespace) -> int:
     try:
         model_path = download_model_asset(
             repo_id=args.repo_id,
             filename=args.filename,
             output_dir=args.output_dir,
+        )
+    except RuntimeError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    print(model_path)
+    return 0
+
+
+def _run_model_fetch_hf(args: argparse.Namespace) -> int:
+    token = args.token or os.environ.get("HF_TOKEN") or None
+    try:
+        model_path = download_hf_snapshot(
+            repo_id=args.repo_id,
+            output_dir=args.output_dir,
+            token=token,
+            revision=args.revision,
         )
     except RuntimeError as exc:
         print(str(exc), file=sys.stderr)
@@ -113,7 +196,7 @@ def _run_model_verify(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="deid-local",
+        prog="llm-local",
         description=(
             "Utilities for developing local-first LLM workflows that can later run on "
             "Linux HPC GPUs."
@@ -196,6 +279,45 @@ def build_parser() -> argparse.ArgumentParser:
     )
     llm_chat_parser.set_defaults(handler=_run_llm_chat)
 
+    llm_connect_parser = llm_subparsers.add_parser(
+        "connect",
+        parents=[llm_common],
+        help="Read a shared vLLM endpoint file and print export commands.",
+    )
+    llm_connect_parser.add_argument(
+        "--endpoint-dir",
+        help="Directory containing vllm-endpoint.json. Defaults to VLLM_ENDPOINT_DIR.",
+    )
+    llm_connect_parser.add_argument(
+        "--test",
+        action="store_true",
+        help="Run a health probe against the resolved endpoint after printing exports.",
+    )
+    llm_connect_parser.add_argument(
+        "--wait-seconds",
+        type=float,
+        default=30.0,
+        help="Maximum time to wait for a passing health probe when --test is set.",
+    )
+    llm_connect_parser.add_argument(
+        "--interval-seconds",
+        type=float,
+        default=2.0,
+        help="Delay between health probe attempts when --test is set.",
+    )
+    llm_connect_parser.set_defaults(handler=_run_llm_connect)
+
+    llm_status_parser = llm_subparsers.add_parser(
+        "status",
+        parents=[llm_common],
+        help="Aggregate endpoint health, SLURM state, and served model information.",
+    )
+    llm_status_parser.add_argument(
+        "--endpoint-dir",
+        help="Directory containing vllm-endpoint.json. Defaults to VLLM_ENDPOINT_DIR.",
+    )
+    llm_status_parser.set_defaults(handler=_run_llm_status)
+
     model_parser = subparsers.add_parser("model", help="Fetch or verify local model assets.")
     model_parser.set_defaults(handler=_make_help_handler(model_parser))
     model_subparsers = model_parser.add_subparsers(dest="model_command")
@@ -220,6 +342,30 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory where the model should be stored.",
     )
     model_fetch_parser.set_defaults(handler=_run_model_fetch)
+
+    model_fetch_hf_parser = model_subparsers.add_parser(
+        "fetch-hf",
+        help="Download a full Hugging Face snapshot for vLLM serving.",
+    )
+    model_fetch_hf_parser.add_argument(
+        "--repo-id",
+        required=True,
+        help="Hugging Face repository ID to download.",
+    )
+    model_fetch_hf_parser.add_argument(
+        "--output-dir",
+        required=True,
+        help="Directory where the model snapshot should be stored.",
+    )
+    model_fetch_hf_parser.add_argument(
+        "--token",
+        help="Optional Hugging Face access token. Falls back to HF_TOKEN.",
+    )
+    model_fetch_hf_parser.add_argument(
+        "--revision",
+        help="Optional git revision, branch, or tag.",
+    )
+    model_fetch_hf_parser.set_defaults(handler=_run_model_fetch_hf)
 
     model_verify_parser = model_subparsers.add_parser(
         "verify",
@@ -262,6 +408,10 @@ def _build_llm_common_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--model",
         help="Override the remote model identifier for HTTP-backed providers.",
+    )
+    parser.add_argument(
+        "--api-key",
+        help="Override the API key used for HTTP-backed providers.",
     )
     parser.add_argument(
         "--health-url",
@@ -314,6 +464,7 @@ def _build_llm_overrides(args: argparse.Namespace) -> LLMSettingsOverrides:
         model_path=getattr(args, "model_path", None),
         base_url=getattr(args, "base_url", None),
         model=getattr(args, "model", None),
+        api_key=getattr(args, "api_key", None),
         health_url=getattr(args, "health_url", None),
         timeout_seconds=getattr(args, "timeout_seconds", None),
         max_retries=getattr(args, "max_retries", None),
@@ -323,6 +474,31 @@ def _build_llm_overrides(args: argparse.Namespace) -> LLMSettingsOverrides:
         llama_gpu_layers=getattr(args, "llama_gpu_layers", None),
         llama_chat_format=getattr(args, "llama_chat_format", None),
     )
+
+
+def _resolve_endpoint(args: argparse.Namespace) -> tuple[Path, EndpointInfo] | None:
+    endpoint_dir: Path | None
+    if getattr(args, "endpoint_dir", None):
+        endpoint_dir = Path(args.endpoint_dir).expanduser()
+    else:
+        endpoint_dir = resolve_endpoint_dir()
+    if endpoint_dir is None:
+        print(
+            "VLLM endpoint directory is not configured. Use --endpoint-dir or set "
+            "VLLM_ENDPOINT_DIR.",
+            file=sys.stderr,
+        )
+        return None
+
+    try:
+        endpoint = read_endpoint(endpoint_dir)
+    except (OSError, ValueError) as exc:
+        print(f"Failed to read endpoint metadata: {exc}", file=sys.stderr)
+        return None
+    if endpoint is None:
+        print(f"Endpoint file not found: {endpoint_dir / 'vllm-endpoint.json'}", file=sys.stderr)
+        return None
+    return endpoint_dir, endpoint
 
 
 def _make_help_handler(parser: argparse.ArgumentParser):

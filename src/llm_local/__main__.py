@@ -1,4 +1,4 @@
-from deid_local.cli import main
+from llm_local.cli import main
 
 if __name__ == "__main__":
     raise SystemExit(main())

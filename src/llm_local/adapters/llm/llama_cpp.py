@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from deid_local.adapters.llm.base import LLMProvider, LLMRequest, LLMResponse
+from llm_local.adapters.llm.base import LLMProvider, LLMRequest, LLMResponse
 
 
 class LlamaCppProvider(LLMProvider):

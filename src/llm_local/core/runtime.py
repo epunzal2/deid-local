@@ -49,7 +49,7 @@ def build_runtime_summary(
 
 def format_runtime_summary(summary: RuntimeSummary) -> str:
     lines = [
-        "deid-local doctor",
+        "llm-local doctor",
         f"Platform: {summary.platform_name}",
         f"Python: {summary.python_version}",
         f"Execution target: {summary.execution_target}",

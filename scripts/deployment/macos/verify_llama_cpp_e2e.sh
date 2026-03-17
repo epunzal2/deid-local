@@ -9,7 +9,7 @@ ARTIFACT_DIR="${PROJECT_ROOT}/verification"
 LOG_PATH="${ARTIFACT_DIR}/llama_cpp_e2e_${TIMESTAMP}.log"
 DEFAULT_MODEL_PATH="${PROJECT_ROOT}/models/llm/Phi-3-mini-4k-instruct-q4.gguf"
 DEFAULT_VENV_PATH="${PROJECT_ROOT}/.venv"
-SIBLING_VENV_PATH="${PROJECT_ROOT}/../deid-local/.venv"
+SIBLING_VENV_PATH="${PROJECT_ROOT}/../llm-local/.venv"
 
 _venv_has_llama_cpp() {
   local venv_path="$1"
@@ -25,7 +25,7 @@ if [[ ! -f "${MODEL_PATH}" ]]; then
   exit 1
 fi
 
-VENV_PATH="${DEID_VENV_PATH:-}"
+VENV_PATH="${VENV_PATH:-}"
 if [[ -z "${VENV_PATH}" ]]; then
   if [[ -x "${DEFAULT_VENV_PATH}/bin/python" ]] && _venv_has_llama_cpp "${DEFAULT_VENV_PATH}"; then
     VENV_PATH="${DEFAULT_VENV_PATH}"
@@ -51,7 +51,7 @@ then
 fi
 
 export PYTHONPATH="${PROJECT_ROOT}/src"
-export DEID_RUN_LLAMA_CPP_E2E=1
+export RUN_LLAMA_CPP_E2E=1
 
 {
   echo "UTC timestamp: ${TIMESTAMP}"

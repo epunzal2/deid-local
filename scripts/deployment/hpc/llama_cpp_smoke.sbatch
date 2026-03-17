@@ -10,8 +10,8 @@
 set -euo pipefail
 
 PROJECT_ROOT="${PROJECT_ROOT:-${SLURM_SUBMIT_DIR:-$PWD}}"
-MODEL_PATH="${DEID_LLAMA_MODEL_PATH:-./models/llm/Phi-3-mini-4k-instruct-q4.gguf}"
-PROMPT="${DEID_SMOKE_PROMPT:-Reply with pong.}"
+MODEL_PATH="${LLAMA_MODEL_PATH:-./models/llm/Phi-3-mini-4k-instruct-q4.gguf}"
+PROMPT="${SMOKE_PROMPT:-Reply with pong.}"
 
 cd "${PROJECT_ROOT}"
 mkdir -p logs
@@ -22,5 +22,5 @@ echo "Project root: ${PROJECT_ROOT}"
 echo "Node: $(hostname -f)"
 echo "Model path: ${MODEL_PATH}"
 
-uv run deid-local llm health --provider llama_cpp --model-path "${MODEL_PATH}"
-uv run deid-local llm infer --provider llama_cpp --model-path "${MODEL_PATH}" --prompt "${PROMPT}"
+uv run llm-local llm health --provider llama_cpp --model-path "${MODEL_PATH}"
+uv run llm-local llm infer --provider llama_cpp --model-path "${MODEL_PATH}" --prompt "${PROMPT}"

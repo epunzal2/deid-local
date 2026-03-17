@@ -1,4 +1,4 @@
-"""deid-local package."""
+"""llm-local package."""
 
 __all__ = ["__version__"]
 

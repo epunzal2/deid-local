@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any
 
-from deid_local.core.llm_settings import LLMRuntimeSettings
+from llm_local.core.llm_settings import LLMRuntimeSettings
 
 
 @dataclass(frozen=True, slots=True)

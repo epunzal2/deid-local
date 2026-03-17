@@ -7,7 +7,7 @@ from typing import Any
 
 import requests
 
-from deid_local.adapters.llm.base import LLMProvider, LLMRequest, LLMResponse
+from llm_local.adapters.llm.base import LLMProvider, LLMRequest, LLMResponse
 
 
 class OpenAICompatibleProvider(LLMProvider):

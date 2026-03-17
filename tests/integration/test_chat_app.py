@@ -4,8 +4,8 @@ import importlib.util
 
 import pytest
 
-from deid_local.adapters.llm.base import LLMResponse
-from deid_local.core.chat_service import ChatSession, create_chat_app
+from llm_local.adapters.llm.base import LLMResponse
+from llm_local.core.chat_service import ChatSession, create_chat_app
 
 
 class _RecordingProvider:
@@ -32,7 +32,7 @@ def test_chat_app_routes_and_clear_behavior() -> None:
 
     home_response = client.get("/")
     assert home_response.status_code == 200
-    assert "deid-local Chat" in home_response.get_data(as_text=True)
+    assert "llm-local Chat" in home_response.get_data(as_text=True)
 
     chat_response = client.post("/chat", json={"message": "hello"})
     assert chat_response.status_code == 200

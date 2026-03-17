@@ -6,6 +6,10 @@
 # - Python packages provide the user-space CUDA libraries; this file does not install
 #   the system driver or CUDA toolkit modules.
 # - The PyTorch stack should come from the CUDA 12.8 wheel index.
+# - With `uv pip`, also pass `--index-strategy unsafe-best-match` so resolution can
+#   combine PyPI and the CUDA index when mirrored packages (for example `setuptools`
+#   or `vllm`) have partial versions on the CUDA index.
+# - Keep `vllm` on the modern release line used by this repo's vLLM serve scripts.
 # - llama.cpp is installed from source with CUDA enabled.
 
 --extra-index-url https://download.pytorch.org/whl/cu128
@@ -43,4 +47,28 @@ sentencepiece
 tiktoken
 tokenizers
 transformers
-vllm ; platform_system == "Linux" and platform_machine == "x86_64"
+vllm>=0.9.0.1,<0.12 ; platform_system == "Linux" and platform_machine == "x86_64"
+
+# LLM application / retrieval stack
+langchain
+langchain-community
+langchain-huggingface
+qdrant-client
+faiss-cpu
+
+# Web/UI and runtime config
+streamlit
+flask
+python-dotenv
+
+# PII handling
+presidio-analyzer
+presidio-anonymizer
+
+# File parsing
+unstructured[md]
+pypdf
+python-magic
+
+# Developer tooling inside the venv
+uv

@@ -19,6 +19,6 @@ Base HPC environment is ready.
 
 Optional follow-up commands:
   uv sync --extra dev --extra llama_cpp
-  uv run deid-local llm health --provider vllm
+  uv run llm-local llm health --provider vllm
   sbatch scripts/deployment/hpc/vllm_smoke.sbatch
 EOF

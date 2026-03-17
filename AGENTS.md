@@ -323,5 +323,38 @@ Operational guardrails:
 - Save manual verification artifacts under `verification/` with UTC timestamps when
   useful.
 
+Per-user secret files in home directory:
+- Do not store tokens in repo-local `.env` files or tracked project directories.
+- Store per-user secrets under `$HOME` with restrictive permissions (`700` for
+  directories, `600` for files).
+- Prefer creating secrets independently on each machine (local laptop and HPC login
+  node) instead of copying secret files between hosts.
+- If transfer is unavoidable, use encrypted transport (`scp` over SSH), write to a
+  user-only path under `$HOME`, and immediately verify permissions.
+
+Example (`bash`) for `HF_TOKEN`:
+```bash
+mkdir -p ~/.config/deid-local
+chmod 700 ~/.config/deid-local
+read -rsp "HF token: " T; echo
+printf '%s' "$T" > ~/.config/deid-local/hf_token
+chmod 600 ~/.config/deid-local/hf_token
+unset T
+echo 'export HF_TOKEN="$(cat ~/.config/deid-local/hf_token)"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Example (`zsh`) for `HF_TOKEN`:
+```zsh
+mkdir -p ~/.config/deid-local
+chmod 700 ~/.config/deid-local
+read -rs "T?HF token: "; echo
+printf '%s' "$T" > ~/.config/deid-local/hf_token
+chmod 600 ~/.config/deid-local/hf_token
+unset T
+echo 'export HF_TOKEN="$(<~/.config/deid-local/hf_token)"' >> ~/.zshrc
+source ~/.zshrc
+```
+
 If any rule repeatedly slows delivery, open an issue with a concrete example so the
 process can be improved.
