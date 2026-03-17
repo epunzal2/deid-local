@@ -58,6 +58,27 @@ scratch:
 export HF_HOME=/scratch/$USER/.cache/huggingface
 ```
 
+#### Non-gated model alternatives
+
+Meta Llama models are gated on Hugging Face and require an accepted license plus
+`HF_TOKEN`. If you prefer a model that can be downloaded without authentication, these
+are comparable alternatives supported by vLLM:
+
+| Model | Params | Why consider |
+| --- | --- | --- |
+| `Qwen/Qwen2.5-7B-Instruct` | 7B | Closest quality to Llama 3.1 8B, strong instruction-following |
+| `mistralai/Mistral-7B-Instruct-v0.3` | 7B | Well-tested in vLLM, solid general-purpose |
+| `microsoft/Phi-3.5-mini-instruct` | 3.8B | Smaller footprint, good for constrained GPU memory |
+| `Qwen/Qwen2.5-14B-Instruct` | 14B | Best quality of these; needs more GPU memory |
+
+To use an alternative, pass its repo ID to the download and serve scripts:
+
+```bash
+scripts/deployment/hpc/download_vllm_model.sh \
+  --repo-id Qwen/Qwen2.5-7B-Instruct \
+  --output-dir "${PROJECT_ROOT}/models/llm/Qwen2.5-7B-Instruct"
+```
+
 ### 3. Launch vLLM service
 
 ```bash

@@ -123,9 +123,11 @@ export VLLM_TENSOR_PARALLEL="${GPUS}"
 export VLLM_PORT="${PORT}"
 export VLLM_MAX_MODEL_LEN="${MAX_MODEL_LEN}"
 
-if [[ -n "${API_KEY}" ]]; then
-    export VLLM_API_KEY="${API_KEY}"
+if [[ -z "${API_KEY}" ]]; then
+    API_KEY="$(openssl rand -hex 32)"
+    echo "Generated VLLM_API_KEY (no key supplied): ${API_KEY}"
 fi
+export VLLM_API_KEY="${API_KEY}"
 if [[ -n "${ENDPOINT_DIR}" ]]; then
     export VLLM_ENDPOINT_DIR="${ENDPOINT_DIR}"
 fi
